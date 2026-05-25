@@ -1,4 +1,4 @@
-
+import Rotas from "./rotas/Rotas"
 
 
 function App() {
@@ -6,7 +6,7 @@ function App() {
 
   return (
     <> 
-    <p>teste</p>
+    <Rotas />
       
     </>
   )

@@ -1,0 +1,15 @@
+/* ════════════════════════════════════════
+   TELA DE CADASTRO
+════════════════════════════════════════ */
+.cadastro-grade-dupla {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .cadastro-grade-dupla {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
