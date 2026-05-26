@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { Mail, Lock, EyeOff, Eye, PawPrint, ArrowRight, User, Shield, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import bgDog from '../../assets/dog.png';
