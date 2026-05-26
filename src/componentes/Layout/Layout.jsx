@@ -1,9 +1,7 @@
 import React from 'react';
-import { PawPrint, Home, Heart, List, User, Menu } from 'lucide-react';
+import { PawPrint, List, User, Menu } from 'lucide-react';
 
 const ITENS_NAV_MOBILE = [
-  { id: 'painel',    icone: <Home size={22} />,  rotulo: 'Início' },
-  { id: 'descobrir', icone: <Heart size={22} />, rotulo: 'Match' },
   { id: 'pets',      icone: <List size={22} />,  rotulo: 'Pets' },
   { id: 'perfil',    icone: <User size={22} />,  rotulo: 'Perfil' },
 ];

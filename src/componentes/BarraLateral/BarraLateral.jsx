@@ -1,13 +1,8 @@
 import React from 'react';
-import { PawPrint, Home, Heart, List, Check, AlertCircle, Gift, User, LogOut } from 'lucide-react';
+import { PawPrint, List, User, LogOut } from 'lucide-react';
 
 export const ITENS_NAV = [
-  { id: 'painel',    icone: <Home size={20} />,        rotulo: 'Painel' },
-  { id: 'descobrir', icone: <Heart size={20} />,       rotulo: 'Match' },
   { id: 'pets',      icone: <List size={20} />,        rotulo: 'Meus Pets' },
-  { id: 'adocao',    icone: <Check size={20} />,       rotulo: 'Adoções' },
-  { id: 'resgate',   icone: <AlertCircle size={20} />, rotulo: 'Resgates' },
-  { id: 'doacoes',   icone: <Gift size={20} />,        rotulo: 'Doações' },
   { id: 'perfil',    icone: <User size={20} />,        rotulo: 'Perfil' },
 ];
 
