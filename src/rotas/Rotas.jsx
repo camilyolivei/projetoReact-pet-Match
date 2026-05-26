@@ -1,19 +1,23 @@
-
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-import Login from '../../paginas/Login/Login.js';
+import Login from '../paginas/Login/Login.jsx';
 import Cadastro from '../paginas/Cadastro/Cadastro.jsx';
-import AppInterno from '../../paginas/AppInterno/AppInterno.js';
+import AppInterno from '../paginas/AppInterno/AppInterno.jsx';
 
-const RotaProtegida = ({ conteudo }) => {
-  const usuarioSalvo = (() => {
+/**
+ * Rota protegida — redireciona para /login se não há sessão salva.
+ * Usa apenas localStorage (sem useContext).
+ */
+const RotaProtegida = ({ children }) => {
+  const usuario = (() => {
     try {
-      const valorSalvo = localStorage.getItem('petmatch_current_user');
-      return valorSalvo ? JSON.parse(valorSalvo) : null;
+      const v = localStorage.getItem('petmatch_current_user');
+      return v ? JSON.parse(v) : null;
     } catch { return null; }
   })();
 
-  return usuarioSalvo ? conteudo : <Navigate to="/login" replace />;
+  return usuario ? children : <Navigate to="/login" replace />;
 };
 
 const Rotas = () => (
