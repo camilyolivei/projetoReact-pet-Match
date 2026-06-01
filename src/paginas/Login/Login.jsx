@@ -1,8 +1,8 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Mail, Lock, EyeOff, Eye, PawPrint, ArrowRight, User, Shield, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import bgDog from '../../assets/dog.png';
-import { entrar, redefinirSenha } from '../../servicos/autenticacao.js';
+import { entrar } from '../../servicos/autenticacao.js';
 import CampoFormulario from '../../componentes/CampoFormulario/CampoFormulario.jsx';
 import Botao from '../../componentes/Botao/Botao.jsx';
 import Notificacao from '../../componentes/Notificacao/Notificacao.jsx';
@@ -53,25 +53,16 @@ const Login = () => {
   const aoEnviarEsqueci = async (e) => {
     e.preventDefault();
     if (novaSenha !== confirmarNovaSenha) {
-      return exibirNotificacao("As senhas não coincidem!", "error");
+      return exibirNotificacao('As senhas não coincidem!', 'error');
     }
-    if (novaSenha.length < 6) {
-      return exibirNotificacao("A nova senha deve ter pelo menos 6 caracteres", "error");
-    }
-
     setCarregando(true);
-    const resultado = await redefinirSenha(emailEsqueci, novaSenha);
+    await new Promise(resolve => setTimeout(resolve, 400));
     setCarregando(false);
-
-    if (resultado.sucesso) {
-      exibirNotificacao("Senha alterada com sucesso!");
-      setMostrarModalEsqueci(false);
-      setEmailEsqueci('');
-      setNovaSenha('');
-      setConfirmarNovaSenha('');
-    } else {
-      exibirNotificacao(resultado.erro || "E-mail não encontrado no sistema.", "error");
-    }
+    exibirNotificacao('Recuperação de senha não suportada pela API atual.', 'error');
+    setMostrarModalEsqueci(false);
+    setEmailEsqueci('');
+    setNovaSenha('');
+    setConfirmarNovaSenha('');
   };
 
   const irParaCadastro = () => {

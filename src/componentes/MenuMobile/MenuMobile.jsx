@@ -2,7 +2,7 @@ import React from 'react';
 import { PawPrint, X, LogOut } from 'lucide-react';
 import { ITENS_NAV } from '../BarraLateral/BarraLateral.jsx';
 
-const MenuMobile = ({ aberto, tela, setTela, aoSair, aoFechar }) => {
+const MenuMobile = ({ aberto, tela, setTela, aoSair, aoFechar, usuarioAtual }) => {
   if (!aberto) return null;
 
   return (
@@ -18,7 +18,7 @@ const MenuMobile = ({ aberto, tela, setTela, aoSair, aoFechar }) => {
           </button>
         </div>
         <nav style={{ flex: 1 }}>
-          {ITENS_NAV.map(item => (
+          {ITENS_NAV.filter(item => item.id !== 'pets' || usuarioAtual?.isOng).map(item => (
             <button
               key={item.id}
               className={`nav-item-premium ${tela === item.id || (item.id === 'pets' && tela === 'formulario_pet') ? 'ativo' : ''}`}

@@ -11,7 +11,10 @@ const Cadastro = () => {
   const navegar = useNavigate();
 
   const [dados, setDados] = useState({
-    name: '', email: '', password: '', confirmPassword: '', telefone: '', endereco: '',
+    name: '', email: '', password: '', confirmPassword: '',
+    isOng: false,
+    cnpj: '', telefone: '', linkSite: '', descricao: '',
+    rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cep: ''
   });
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmar, setMostrarConfirmar] = useState(false);
@@ -39,14 +42,20 @@ const Cadastro = () => {
 
     setCarregando(true);
     const resultado = await cadastrar({
-      name: dados.name, email: dados.email, password: dados.password,
-      telefone: dados.telefone, endereco: dados.endereco,
+      name: dados.name, email: dados.email, password: dados.password, isOng: dados.isOng,
+      cnpj: dados.cnpj, telefone: dados.telefone, linkSite: dados.linkSite, descricao: dados.descricao,
+      rua: dados.rua, numero: dados.numero, complemento: dados.complemento, bairro: dados.bairro,
+      cidade: dados.cidade, estado: dados.estado, cep: dados.cep
     });
     setCarregando(false);
 
     if (resultado.sucesso) {
       exibirNotificacao("Conta criada com sucesso! Faça seu login.");
-      setDados({ name: '', email: '', password: '', confirmPassword: '', telefone: '', endereco: '' });
+      setDados({
+        name: '', email: '', password: '', confirmPassword: '', isOng: false,
+        cnpj: '', telefone: '', linkSite: '', descricao: '',
+        rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cep: ''
+      });
       navegar('/login');
     } else {
       exibirNotificacao(resultado.erro || "Este e-mail já está em uso.", "error");
@@ -142,9 +151,44 @@ const Cadastro = () => {
               </div>
             </div>
 
-            <div className="cadastro-grade-dupla">
-              <CampoFormulario rotulo="Telefone" tipo="tel" placeholder="(00) 00000-0000" valor={dados.telefone} aoMudar={e => setDados({ ...dados, telefone: e.target.value })} icone={Phone} obrigatorio />
-              <CampoFormulario rotulo="Cidade / UF" tipo="text" placeholder="São Paulo, SP" valor={dados.endereco} aoMudar={e => setDados({ ...dados, endereco: e.target.value })} icone={MapPin} obrigatorio />
+            {dados.isOng && (
+              <div className="fade-in" style={{ marginTop: '16px', background: 'rgba(209,107,71,0.03)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(209,107,71,0.1)' }}>
+                <h3 style={{ fontSize: '1.05rem', color: '#1f3024', marginBottom: '16px' }}>Dados da Instituição</h3>
+                <div className="cadastro-grade-dupla">
+                  <CampoFormulario rotulo="CNPJ" tipo="text" placeholder="00.000.000/0000-00" valor={dados.cnpj} aoMudar={e => setDados({ ...dados, cnpj: e.target.value })} icone={User} obrigatorio={dados.isOng} />
+                  <CampoFormulario rotulo="Telefone" tipo="tel" placeholder="(00) 00000-0000" valor={dados.telefone} aoMudar={e => setDados({ ...dados, telefone: e.target.value })} icone={Phone} obrigatorio={dados.isOng} />
+                </div>
+                <CampoFormulario rotulo="Site ou Rede Social" tipo="url" placeholder="https://" valor={dados.linkSite} aoMudar={e => setDados({ ...dados, linkSite: e.target.value })} icone={PawPrint} obrigatorio={dados.isOng} />
+                <CampoFormulario rotulo="Descrição da ONG" tipo="text" placeholder="Conte sobre o trabalho de vocês..." valor={dados.descricao} aoMudar={e => setDados({ ...dados, descricao: e.target.value })} icone={PawPrint} obrigatorio={dados.isOng} />
+                
+                <h3 style={{ fontSize: '1.05rem', color: '#1f3024', marginTop: '24px', marginBottom: '16px' }}>Endereço</h3>
+                <div className="cadastro-grade-dupla">
+                  <CampoFormulario rotulo="CEP" tipo="text" placeholder="00000-000" valor={dados.cep} aoMudar={e => setDados({ ...dados, cep: e.target.value })} icone={MapPin} obrigatorio={dados.isOng} />
+                  <CampoFormulario rotulo="Estado (UF)" tipo="text" placeholder="SP" valor={dados.estado} aoMudar={e => setDados({ ...dados, estado: e.target.value })} icone={MapPin} obrigatorio={dados.isOng} />
+                </div>
+                <div className="cadastro-grade-dupla">
+                  <CampoFormulario rotulo="Cidade" tipo="text" placeholder="São Paulo" valor={dados.cidade} aoMudar={e => setDados({ ...dados, cidade: e.target.value })} icone={MapPin} obrigatorio={dados.isOng} />
+                  <CampoFormulario rotulo="Bairro" tipo="text" placeholder="Centro" valor={dados.bairro} aoMudar={e => setDados({ ...dados, bairro: e.target.value })} icone={MapPin} obrigatorio={dados.isOng} />
+                </div>
+                <div className="cadastro-grade-dupla">
+                  <CampoFormulario rotulo="Rua/Avenida" tipo="text" placeholder="Av. Principal" valor={dados.rua} aoMudar={e => setDados({ ...dados, rua: e.target.value })} icone={MapPin} obrigatorio={dados.isOng} />
+                  <CampoFormulario rotulo="Número" tipo="text" placeholder="1000" valor={dados.numero} aoMudar={e => setDados({ ...dados, numero: e.target.value })} icone={MapPin} obrigatorio={dados.isOng} />
+                </div>
+                <CampoFormulario rotulo="Complemento" tipo="text" placeholder="Apto, Sala (opcional)" valor={dados.complemento} aoMudar={e => setDados({ ...dados, complemento: e.target.value })} icone={MapPin} />
+              </div>
+            )}
+
+            <div style={{ marginTop: '16px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(209,107,71,0.05)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(209,107,71,0.2)' }}>
+              <input 
+                type="checkbox" 
+                id="isOng" 
+                checked={dados.isOng} 
+                onChange={e => setDados({ ...dados, isOng: e.target.checked })}
+                style={{ width: '18px', height: '18px', accentColor: '#d16b47', cursor: 'pointer' }}
+              />
+              <label htmlFor="isOng" style={{ fontSize: '0.9rem', color: '#1f3024', fontWeight: 600, cursor: 'pointer' }}>
+                Sou uma Instituição / ONG
+              </label>
             </div>
 
             <p style={{ fontSize: '0.77rem', color: '#b0b7c3', lineHeight: 1.6, marginTop: '4px', marginBottom: 0 }}>

@@ -20,13 +20,25 @@ const RotaProtegida = ({ children }) => {
   return usuario ? children : <Navigate to="/login" replace />;
 };
 
+const RotaCoringa = () => {
+  const usuario = (() => {
+    try {
+      const v = localStorage.getItem('petmatch_current_user');
+      return v ? JSON.parse(v) : null;
+    } catch { return null; }
+  })();
+
+  return usuario ? <Navigate to="/app/painel" replace /> : <Navigate to="/login" replace />;
+};
+
 const Rotas = () => (
   <BrowserRouter>
     <Routes>
       <Route path="/login"   element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/app"     element={<RotaProtegida><AppInterno /></RotaProtegida>} />
-      <Route path="*"        element={<Navigate to="/login" replace />} />
+      <Route path="/app/:pagina" element={<RotaProtegida><AppInterno /></RotaProtegida>} />
+      <Route path="*"        element={<RotaCoringa />} />
     </Routes>
   </BrowserRouter>
 );

@@ -9,20 +9,51 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
     name: usuarioAtual?.name || '',
     email: usuarioAtual?.email || '',
     telefone: usuarioAtual?.telefone || '',
-    endereco: usuarioAtual?.endereco || '',
     avatar: usuarioAtual?.avatar || null,
+    // Campos de ONG
+    cnpj: usuarioAtual?.cnpj || '',
+    linkSite: usuarioAtual?.link_site || '',
+    descricao: usuarioAtual?.descricao || '',
+    // Endereço detalhado
+    rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cep: ''
   });
+  const [enderecoFormatado, setEnderecoFormatado] = useState(usuarioAtual?.endereco || '');
 
-  // Atualiza dados de edição quando usuário muda
+  // Atualiza dados quando usuário muda
   useEffect(() => {
     if (usuarioAtual) {
-      setDadosEdicao({
+      setDadosEdicao(d => ({
+        ...d,
         name: usuarioAtual.name || '',
         email: usuarioAtual.email || '',
         telefone: usuarioAtual.telefone || '',
-        endereco: usuarioAtual.endereco || '',
         avatar: usuarioAtual.avatar || null,
-      });
+        cnpj: usuarioAtual.cnpj || '',
+        linkSite: usuarioAtual.link_site || '',
+        descricao: usuarioAtual.descricao || ''
+      }));
+
+      // Se for ONG e tiver endereco_id, busca na API
+      if (usuarioAtual.isOng && usuarioAtual.endereco_id) {
+        const buscarEndereco = async () => {
+          try {
+            const token = localStorage.getItem('petmatch_token');
+            const res = await fetch(`https://pets-api-gt48.onrender.com/enderecos/${usuarioAtual.endereco_id}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+              const end = await res.json();
+              setDadosEdicao(prev => ({
+                ...prev,
+                rua: end.rua || '', numero: end.numero || '', complemento: end.complemento || '',
+                bairro: end.bairro || '', cidade: end.cidade || '', estado: end.estado || '', cep: end.cep || ''
+              }));
+              setEnderecoFormatado(`${end.rua || ''}, ${end.numero || ''} - ${end.bairro || ''}, ${end.cidade || ''}/${end.estado || ''}`);
+            }
+          } catch (e) { console.error('Erro ao buscar endereço:', e); }
+        };
+        buscarEndereco();
+      }
     }
   }, [usuarioAtual]);
 
@@ -87,13 +118,36 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
             <p style={{ color: '#6b7280', marginBottom: '32px' }}>{usuarioAtual?.email}</p>
             <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
               <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <MapPin size={20} color="#6b7280" />
-                <span>{usuarioAtual?.endereco || 'Endereço não cadastrado'}</span>
-              </div>
-              <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <Phone size={20} color="#6b7280" />
                 <span>{usuarioAtual?.telefone || 'Telefone não cadastrado'}</span>
               </div>
+              <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <MapPin size={20} color="#6b7280" />
+                <span>{enderecoFormatado || 'Endereço não cadastrado'}</span>
+              </div>
+              
+              {usuarioAtual?.isOng && (
+                <>
+                  {usuarioAtual.cnpj && (
+                    <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <span style={{ fontWeight: 700, color: '#6b7280', fontSize: '0.8rem', textTransform: 'uppercase' }}>CNPJ</span>
+                      <span>{usuarioAtual.cnpj}</span>
+                    </div>
+                  )}
+                  {usuarioAtual.link_site && (
+                    <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <span style={{ fontWeight: 700, color: '#6b7280', fontSize: '0.8rem', textTransform: 'uppercase' }}>Site/Rede</span>
+                      <a href={usuarioAtual.link_site.startsWith('http') ? usuarioAtual.link_site : `https://${usuarioAtual.link_site}`} target="_blank" rel="noreferrer" style={{ color: '#d16b47', textDecoration: 'underline' }}>{usuarioAtual.link_site}</a>
+                    </div>
+                  )}
+                  {usuarioAtual.descricao && (
+                    <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <span style={{ fontWeight: 700, color: '#6b7280', fontSize: '0.8rem', textTransform: 'uppercase' }}>Descrição da ONG</span>
+                      <span style={{ lineHeight: 1.6, fontSize: '0.95rem' }}>{usuarioAtual.descricao}</span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
             <button className="btn-outline-premium" style={{ marginTop: 0 }} onClick={() => setEditando(true)}>
               <Edit size={16} /> Editar Perfil Completo
@@ -102,17 +156,51 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
         ) : (
           /* Formulário de edição */
           <div style={{ textAlign: 'left' }}>
-            {[{ rotulo: 'Nome', chave: 'name' }, { rotulo: 'Telefone', chave: 'telefone' }, { rotulo: 'Endereço', chave: 'endereco' }].map(({ rotulo, chave }) => (
+            <h4 style={{ marginBottom: '16px', fontSize: '1.1rem', fontWeight: 600, color: '#1f3024' }}>Informações Básicas</h4>
+            <div className="campo-wrapper">
+              <label className="campo-rotulo">E-mail (Não editável)</label>
+              <input className="campo-entrada" style={{ padding: '0 24px', opacity: 0.7 }} value={dadosEdicao.email} disabled />
+            </div>
+            {[{ rotulo: 'Nome da ONG', chave: 'name' }, { rotulo: 'Telefone', chave: 'telefone' }].map(({ rotulo, chave }) => (
               <div className="campo-wrapper" key={chave}>
                 <label className="campo-rotulo">{rotulo}</label>
                 <input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao[chave]}
                   onChange={e => setDadosEdicao({ ...dadosEdicao, [chave]: e.target.value })} />
               </div>
             ))}
-            <div className="campo-wrapper">
-              <label className="campo-rotulo">E-mail</label>
-              <input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao.email} disabled />
-            </div>
+
+            {usuarioAtual?.isOng && (
+              <>
+                <h4 style={{ marginTop: '32px', marginBottom: '16px', fontSize: '1.1rem', fontWeight: 600, color: '#1f3024' }}>Dados da Instituição</h4>
+                {[{ rotulo: 'CNPJ', chave: 'cnpj' }, { rotulo: 'Site ou Rede Social', chave: 'linkSite' }].map(({ rotulo, chave }) => (
+                  <div className="campo-wrapper" key={chave}>
+                    <label className="campo-rotulo">{rotulo}</label>
+                    <input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao[chave]}
+                      onChange={e => setDadosEdicao({ ...dadosEdicao, [chave]: e.target.value })} />
+                  </div>
+                ))}
+                <div className="campo-wrapper">
+                  <label className="campo-rotulo">Descrição da ONG</label>
+                  <textarea className="campo-entrada" style={{ padding: '16px 24px', height: '100px', resize: 'none' }} value={dadosEdicao.descricao}
+                    onChange={e => setDadosEdicao({ ...dadosEdicao, descricao: e.target.value })} />
+                </div>
+
+                <h4 style={{ marginTop: '32px', marginBottom: '16px', fontSize: '1.1rem', fontWeight: 600, color: '#1f3024' }}>Endereço Completo</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className="campo-wrapper"><label className="campo-rotulo">CEP</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.cep} onChange={e => setDadosEdicao({ ...dadosEdicao, cep: e.target.value })} /></div>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Estado (UF)</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.estado} onChange={e => setDadosEdicao({ ...dadosEdicao, estado: e.target.value })} /></div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Cidade</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.cidade} onChange={e => setDadosEdicao({ ...dadosEdicao, cidade: e.target.value })} /></div>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Bairro</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.bairro} onChange={e => setDadosEdicao({ ...dadosEdicao, bairro: e.target.value })} /></div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Rua/Avenida</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.rua} onChange={e => setDadosEdicao({ ...dadosEdicao, rua: e.target.value })} /></div>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Número</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.numero} onChange={e => setDadosEdicao({ ...dadosEdicao, numero: e.target.value })} /></div>
+                </div>
+                <div className="campo-wrapper"><label className="campo-rotulo">Complemento</label><input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao.complemento} onChange={e => setDadosEdicao({ ...dadosEdicao, complemento: e.target.value })} /></div>
+              </>
+            )}
             <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
               <button className="btn-submit-premium" style={{ marginTop: 0 }} onClick={aoSalvar}><Save size={16} /> Salvar</button>
               <button className="btn-outline-premium" style={{ marginTop: 0 }} onClick={() => setEditando(false)}>Cancelar</button>

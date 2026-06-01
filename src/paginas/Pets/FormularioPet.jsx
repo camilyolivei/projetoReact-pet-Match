@@ -10,13 +10,13 @@ const FormularioPet = ({ petEditando, setPetEditando, usuarioAtual, setTela, adi
 
   const aoEnviar = async (e) => {
     e.preventDefault();
-    if (!dados.name || !dados.age) return exibirNotificacao('Preencha os campos obrigatórios!', 'erro');
+    if (!dados.name || !dados.type) return exibirNotificacao('Preencha os campos obrigatórios!', 'erro');
     setSalvando(true);
     if (petEditando) {
       await atualizarPet(petEditando.id, dados);
       exibirNotificacao(`${dados.name} atualizado com sucesso!`);
     } else {
-      await adicionarPet({ ...dados, owner_id: usuarioAtual.id });
+      await adicionarPet({ ...dados, owner_id: usuarioAtual.instituicao_id || usuarioAtual.id });
       exibirNotificacao(`${dados.name} cadastrado com sucesso!`);
     }
     setSalvando(false);
@@ -60,11 +60,33 @@ const FormularioPet = ({ petEditando, setPetEditando, usuarioAtual, setTela, adi
             {campo('Idade', 'age', 'Ex: 2 anos')}
             {campo('Cor', 'cor', 'Ex: Caramelo')}
           </div>
-          <div className="campo-wrapper">
+          <div className="campo-wrapper" style={{ marginTop: '16px' }}>
             <label className="campo-rotulo">Sobre ele</label>
             <textarea className="campo-entrada" style={{ padding: '20px 24px', height: '120px', resize: 'none' }}
               placeholder="Conte um pouco sobre a personalidade..."
               value={dados.desc} onChange={e => setDados({ ...dados, desc: e.target.value })} />
+          </div>
+          <div style={{ display: 'flex', gap: '24px', marginTop: '16px', marginBottom: '24px', background: 'rgba(209,107,71,0.05)', padding: '16px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input 
+                type="checkbox" 
+                id="vacinado" 
+                checked={dados.vacinado} 
+                onChange={e => setDados({ ...dados, vacinado: e.target.checked })}
+                style={{ width: '18px', height: '18px', accentColor: '#d16b47', cursor: 'pointer' }}
+              />
+              <label htmlFor="vacinado" style={{ cursor: 'pointer', fontWeight: 600, color: '#1f3024' }}>Pet Vacinado</label>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input 
+                type="checkbox" 
+                id="castrado" 
+                checked={dados.castrado} 
+                onChange={e => setDados({ ...dados, castrado: e.target.checked })}
+                style={{ width: '18px', height: '18px', accentColor: '#d16b47', cursor: 'pointer' }}
+              />
+              <label htmlFor="castrado" style={{ cursor: 'pointer', fontWeight: 600, color: '#1f3024' }}>Pet Castrado</label>
+            </div>
           </div>
           <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
             <button type="submit" className="btn-submit-premium" style={{ marginTop: 0 }} disabled={salvando}>
