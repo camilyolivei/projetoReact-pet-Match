@@ -307,10 +307,11 @@ const AppInterno = () => {
   }
 
   // criar uma solicitação de adoção
-  async function solicitarAdocao(pet) {
-    const resposta = await apiAdocoes.solicitar({
+  async function solicitarAdocao(petId) {
+    const resposta = await apiAdocoes.criar({
       usuario_id: usuario.id,
-      pet_id: pet.id
+      pet_id: petId,
+      status: 'pendente'
     });
     
     if (resposta.ok) {

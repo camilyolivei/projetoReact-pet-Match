@@ -5,12 +5,8 @@ import CabecalhoPagina from '../../componentes/CabecalhoPagina/CabecalhoPagina.j
 const Adocao = ({ adocoes, pets, usuarioAtual, atualizarStatusAdocao, exibirNotificacao }) => {
   const [abaAtiva, setAbaAtiva] = useState('enviadas');
 
-  const adocoesEnviadas = adocoes.filter(a => a.usuario_id === usuarioAtual?.id);
-  const adocoesRecebidas = adocoes.filter(a => {
-    const petId = a.petId || a.pet_id;
-    const pet = pets.find(p => p.id === petId);
-    return pet && pet.owner_id === (usuarioAtual?.isOng ? usuarioAtual?.instituicao_id : usuarioAtual?.id);
-  });
+  const adocoesEnviadas = adocoes.filter(a => String(a.usuario_id) === String(usuarioAtual?.id));
+  const adocoesRecebidas = adocoes.filter(a => String(a.usuario_id) !== String(usuarioAtual?.id));
 
   const corBadge = (status) => status === 'aprovada' ? 'verde' : status === 'recusada' ? 'cinza' : 'laranja';
 

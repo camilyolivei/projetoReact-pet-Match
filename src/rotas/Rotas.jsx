@@ -34,11 +34,11 @@ const RotaCoringa = () => {
 const Rotas = () => (
   <BrowserRouter>
     <Routes>
-      <Route path="/login"   element={<Login />} />
+      <Route path="/login" element={<Login />} />
       <Route path="/cadastro" element={<Cadastro />} />
-      <Route path="/app"     element={<RotaProtegida><AppInterno /></RotaProtegida>} />
+      <Route path="/app" element={<RotaProtegida><AppInterno /></RotaProtegida>} />
       <Route path="/app/:pagina" element={<RotaProtegida><AppInterno /></RotaProtegida>} />
-      <Route path="*"        element={<RotaCoringa />} />
+      <Route path="*" element={<RotaCoringa />} />
     </Routes>
   </BrowserRouter>
 );
