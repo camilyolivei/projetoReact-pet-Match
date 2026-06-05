@@ -159,12 +159,22 @@ const AppInterno = () => {
           });
         } else {
           setAdocoes(todasAdocoes);
+          // Para usuário comum, buscar as doações feitas por ele
+          apiDoacoes.porUsuario(usuario.id).then((respostaDoacao) => {
+            if (respostaDoacao.ok && Array.isArray(respostaDoacao.dados)) {
+              setDoacoes(prev => {
+                const map = new Map();
+                [...prev, ...respostaDoacao.dados].forEach(d => map.set(d.id, d));
+                return Array.from(map.values());
+              });
+            }
+          });
         }
       });
 
       apiResgates.listar().then((respostaResgates) => {
         if (respostaResgates.ok && Array.isArray(respostaResgates.dados)) {
-          setResgates(respostaResgates.dados);
+          setResgates(respostaResgates.dados.filter(r => r.status !== 'excluido'));
         }
       });
     };
@@ -255,8 +265,17 @@ const AppInterno = () => {
     // Tenta atualizar no backend
     try {
       const payload = {
-        nome: dadosNovos.name,
-        telefone: dadosNovos.telefone
+        name: dadosNovos.name,
+        telefone: dadosNovos.telefone,
+        endereco: {
+          rua: dadosNovos.rua || "",
+          numero: dadosNovos.numero || "",
+          complemento: dadosNovos.complemento || "",
+          bairro: dadosNovos.bairro || "",
+          cidade: dadosNovos.cidade || "",
+          estado: dadosNovos.estado || "",
+          cep: dadosNovos.cep || ""
+        }
       };
       
       if (usuario.isOng && usuario.instituicao_id) {
@@ -306,6 +325,21 @@ const AppInterno = () => {
     setUsuario({ ...usuario, ...dadosMerge });
   }
 
+  // excluir perfil
+  async function excluirPerfil() {
+    try {
+      if (usuario.isOng && usuario.instituicao_id) {
+        await fetch(`https://pets-api-gt48.onrender.com/instituicoes/${usuario.instituicao_id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('petmatch_token')}` } });
+      }
+      await fetch(`https://pets-api-gt48.onrender.com/usuarios/${usuario.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('petmatch_token')}` } });
+    } catch (e) {
+      console.error("Erro ao excluir perfil na API", e);
+    }
+    sair();
+    setUsuario(null);
+    navegar('/');
+  }
+
   // criar uma solicitação de adoção
   async function solicitarAdocao(petId) {
     const resposta = await apiAdocoes.criar({
@@ -334,39 +368,96 @@ const AppInterno = () => {
 
   // Reportar Resgate
   async function reportarResgate(dados) {
-    const resposta = await apiResgates.reportar({ ...dados, status: 'pendente' });
+    const payloadCombinado = `${dados.descricao} | Local: ${dados.localizacao}`;
+    const resposta = await apiResgates.reportar({ descricao: payloadCombinado, localizacao: payloadCombinado, status: 'pendente' });
     if (resposta.ok) {
-      const novoResgate = { id: Date.now(), ...dados, status: 'pendente' };
-      setResgates(prev => [novoResgate, ...prev]);
+      // Tentar buscar imediatamente para pegar o ID real
+      apiResgates.listar().then(resBusca => {
+        if (resBusca.ok && Array.isArray(resBusca.dados)) {
+          const resgatesAtivos = resBusca.dados.filter(r => r.status !== 'excluido');
+          setResgates(resgatesAtivos);
+          // O resgate mais recente com esse texto será o nosso
+          const meuCriado = resgatesAtivos.find(r => r.descricao === payloadCombinado);
+          if (meuCriado) {
+            const meus = JSON.parse(localStorage.getItem('petmatch_meus_resgates') || '[]');
+            if (!meus.includes(meuCriado.id)) meus.push(meuCriado.id);
+            localStorage.setItem('petmatch_meus_resgates', JSON.stringify(meus));
+          }
+        }
+      });
     } else {
       exibirNotificacao('Erro ao reportar resgate.', 'erro');
+    }
+  }
+
+  // Excluir Resgate
+  async function excluirResgate(id) {
+    try {
+      await fetch(`https://pets-api-gt48.onrender.com/resgates/${id}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'excluido' })
+      });
+      setResgates(prev => prev.filter(r => r.id !== id));
+      exibirNotificacao('Resgate excluído com sucesso!');
+    } catch {
+      exibirNotificacao('Erro ao excluir resgate.', 'erro');
+    }
+  }
+
+  // Editar Resgate (Simula edição excluindo o antigo e criando um novo)
+  async function editarResgate(idAntigo, novaDesc, novaLoc) {
+    try {
+      await fetch(`https://pets-api-gt48.onrender.com/resgates/${idAntigo}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'excluido' })
+      });
+      await reportarResgate({ descricao: novaDesc, localizacao: novaLoc });
+      exibirNotificacao('Resgate atualizado com sucesso!');
+    } catch {
+      exibirNotificacao('Erro ao editar resgate.', 'erro');
     }
   }
 
   // atualiza o status de uma adoção
   async function atualizarStatusAdocao(adocaoId, novoStatus, petId) {
     await apiAdocoes.atualizar(adocaoId, { status: novoStatus });
-    setAdocoes(
-      adocoes.map((a) => (a.id === adocaoId ? { ...a, status: novoStatus } : a))
-    );
+    
+    let novasAdocoes = adocoes.map((a) => (a.id === adocaoId ? { ...a, status: novoStatus } : a));
 
-    // Se a adoção foi aprovada, marca o pet como indisponível
+    // Se a adoção foi aprovada, marca o pet como indisponível e recusa as outras solicitações para este pet
     if (novoStatus === 'aprovada') {
       await atualizarPet(petId, { ativo: false });
+      
+      // Recusar as outras adoções para o mesmo pet
+      const outrasAdocoes = novasAdocoes.filter(a => a.petId === petId && a.id !== adocaoId && a.status === 'pendente');
+      for (const adocao of outrasAdocoes) {
+        await apiAdocoes.atualizar(adocao.id, { status: 'recusada' });
+      }
+      
+      novasAdocoes = novasAdocoes.map(a => {
+        if (a.petId === petId && a.id !== adocaoId && a.status === 'pendente') {
+          return { ...a, status: 'recusada' };
+        }
+        return a;
+      });
     }
+    
+    setAdocoes(novasAdocoes);
   }
 
   // Renderiza a tela baseada na navegação
   const renderizarTela = () => {
     switch (tela) {
       case 'painel':
-        return <Dashboard setView={setTela} />;
+        return <Dashboard setView={setTela} excluirResgate={excluirResgate} editarResgate={editarResgate} />;
       case 'pets':
         return <ListaPets pets={pets} setPetEditando={setPetEditando} setTela={setTela} usuarioAtual={usuario} removerPet={removerPet} />;
       case 'formulario_pet':
         return <FormularioPet petEditando={petEditando} setPetEditando={setPetEditando} usuarioAtual={usuario} setTela={setTela} adicionarPet={adicionarPet} atualizarPet={atualizarPet} exibirNotificacao={exibirNotificacao} />;
       case 'perfil':
-        return <Perfil usuarioAtual={usuario} atualizarPerfil={atualizarPerfil} exibirNotificacao={exibirNotificacao} />;
+        return <Perfil usuarioAtual={usuario} atualizarPerfil={atualizarPerfil} excluirPerfil={excluirPerfil} exibirNotificacao={exibirNotificacao} />;
       case 'descobrir':
         return <Descobrir pets={pets} adocoes={adocoes} usuarioAtual={usuario} exibirNotificacao={exibirNotificacao} setTela={setTela} criarAdocao={solicitarAdocao} />;
       case 'adocao':

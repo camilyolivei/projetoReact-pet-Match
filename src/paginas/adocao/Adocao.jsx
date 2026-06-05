@@ -54,6 +54,15 @@ const Adocao = ({ adocoes, pets, usuarioAtual, atualizarStatusAdocao, exibirNoti
                   <img src={a.img} alt={a.petName} style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #f4f5f1' }} />
                   <div>
                     <h3 style={{ fontSize: '1.3rem', fontWeight: 700 }}>{a.petName}</h3>
+                    <p style={{ color: '#6b7280', fontSize: '0.85rem', marginTop: '2px' }}>
+                      ONG Responsável: <strong style={{ color: '#1f3024' }}>{
+                        (() => {
+                          const pet = pets.find(p => p.id === (a.petId || a.pet_id));
+                          const nome = a.institutionName || a.instituicao || pet?.instituicao_nome || pet?.owner_name || 'Desconhecida';
+                          return nome.charAt(0).toUpperCase() + nome.slice(1);
+                        })()
+                      }</strong>
+                    </p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#6b7280', fontSize: '0.9rem', marginTop: '6px' }}>
                       {a.status === 'pendente' && <><Clock size={16} color="#eab308" /> <span>Aguardando resposta do tutor</span></>}
                       {a.status === 'aprovada' && <><CheckCircle2 size={16} color="#22c55e" /> <span>Sua adoção foi aprovada!</span></>}

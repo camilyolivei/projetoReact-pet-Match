@@ -298,5 +298,13 @@ export const apiDoacoes = {
     } catch (error) {
       return handleError(error);
     }
+  },
+  porUsuario: async (usuarioId) => {
+    try {
+      const response = await api.get(`/doacoes/usuario/${usuarioId}`);
+      return { ok: true, status: response.status, dados: response.data || [] };
+    } catch (error) {
+      return handleError(error);
+    }
   }
 };

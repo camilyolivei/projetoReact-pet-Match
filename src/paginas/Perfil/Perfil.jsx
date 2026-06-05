@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Phone, Edit, Camera, Save } from 'lucide-react';
+import { MapPin, Phone, Edit, Camera, Save, Trash2 } from 'lucide-react';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina/CabecalhoPagina.jsx';
 import { AvatarUsuario } from '../../componentes/SobreposicaoMatch/SobreposicaoMatch.jsx';
 
-const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
+const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificacao }) => {
   const [editando, setEditando] = useState(false);
   const [dadosEdicao, setDadosEdicao] = useState({
     name: usuarioAtual?.name || '',
@@ -33,7 +33,7 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
         descricao: usuarioAtual.descricao || ''
       }));
 
-      // Se for ONG e tiver endereco_id, busca na API
+      // Se for ONG e tiver endereco_id, busca na API (legado)
       if (usuarioAtual.isOng && usuarioAtual.endereco_id) {
         const buscarEndereco = async () => {
           try {
@@ -53,6 +53,14 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
           } catch (e) { console.error('Erro ao buscar endereço:', e); }
         };
         buscarEndereco();
+      } else if (usuarioAtual.endereco && typeof usuarioAtual.endereco === 'object') {
+        const end = usuarioAtual.endereco;
+        setDadosEdicao(prev => ({
+          ...prev,
+          rua: end.rua || '', numero: end.numero || '', complemento: end.complemento || '',
+          bairro: end.bairro || '', cidade: end.cidade || '', estado: end.estado || '', cep: end.cep || ''
+        }));
+        setEnderecoFormatado(`${end.rua || ''}, ${end.numero || ''} - ${end.bairro || ''}, ${end.cidade || ''}/${end.estado || ''}`);
       }
     }
   }, [usuarioAtual]);
@@ -149,9 +157,23 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
                 </>
               )}
             </div>
-            <button className="btn-outline-premium" style={{ marginTop: 0 }} onClick={() => setEditando(true)}>
-              <Edit size={16} /> Editar Perfil Completo
-            </button>
+            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'nowrap' }}>
+              <button className="btn-outline-premium" style={{ marginTop: 0, width: 'auto', flex: 1 }} onClick={() => setEditando(true)}>
+                <Edit size={16} /> Editar Perfil Completo
+              </button>
+              <button 
+                style={{ marginTop: 0, width: 'auto', flex: 1, background: 'rgba(239,68,68,0.05)', border: '1.5px solid #fca5a5', color: '#ef4444', padding: '0 24px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s', height: '44px', whiteSpace: 'nowrap' }}
+                onClick={() => {
+                  if(window.confirm('Tem certeza que deseja excluir sua conta permanentemente? Esta ação não pode ser desfeita.')) {
+                    excluirPerfil();
+                  }
+                }}
+                onMouseOver={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.borderColor = '#ef4444'; }}
+                onMouseOut={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.05)'; e.currentTarget.style.borderColor = '#fca5a5'; }}
+              >
+                <Trash2 size={16} /> Excluir Conta
+              </button>
+            </div>
           </>
         ) : (
           /* Formulário de edição */
@@ -161,7 +183,7 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
               <label className="campo-rotulo">E-mail (Não editável)</label>
               <input className="campo-entrada" style={{ padding: '0 24px', opacity: 0.7 }} value={dadosEdicao.email} disabled />
             </div>
-            {[{ rotulo: 'Nome da ONG', chave: 'name' }, { rotulo: 'Telefone', chave: 'telefone' }].map(({ rotulo, chave }) => (
+            {[{ rotulo: usuarioAtual?.isOng ? 'Nome da ONG' : 'Nome Completo', chave: 'name' }, { rotulo: 'Telefone', chave: 'telefone' }].map(({ rotulo, chave }) => (
               <div className="campo-wrapper" key={chave}>
                 <label className="campo-rotulo">{rotulo}</label>
                 <input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao[chave]}
@@ -184,8 +206,10 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
                   <textarea className="campo-entrada" style={{ padding: '16px 24px', height: '100px', resize: 'none' }} value={dadosEdicao.descricao}
                     onChange={e => setDadosEdicao({ ...dadosEdicao, descricao: e.target.value })} />
                 </div>
+              </>
+            )}
 
-                <h4 style={{ marginTop: '32px', marginBottom: '16px', fontSize: '1.1rem', fontWeight: 600, color: '#1f3024' }}>Endereço Completo</h4>
+            <h4 style={{ marginTop: '32px', marginBottom: '16px', fontSize: '1.1rem', fontWeight: 600, color: '#1f3024' }}>Endereço Completo</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                   <div className="campo-wrapper"><label className="campo-rotulo">CEP</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.cep} onChange={e => setDadosEdicao({ ...dadosEdicao, cep: e.target.value })} /></div>
                   <div className="campo-wrapper"><label className="campo-rotulo">Estado (UF)</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.estado} onChange={e => setDadosEdicao({ ...dadosEdicao, estado: e.target.value })} /></div>
@@ -199,8 +223,6 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, exibirNotificacao }) => {
                   <div className="campo-wrapper"><label className="campo-rotulo">Número</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.numero} onChange={e => setDadosEdicao({ ...dadosEdicao, numero: e.target.value })} /></div>
                 </div>
                 <div className="campo-wrapper"><label className="campo-rotulo">Complemento</label><input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao.complemento} onChange={e => setDadosEdicao({ ...dadosEdicao, complemento: e.target.value })} /></div>
-              </>
-            )}
             <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
               <button className="btn-submit-premium" style={{ marginTop: 0 }} onClick={aoSalvar}><Save size={16} /> Salvar</button>
               <button className="btn-outline-premium" style={{ marginTop: 0 }} onClick={() => setEditando(false)}>Cancelar</button>

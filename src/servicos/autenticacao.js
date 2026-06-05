@@ -84,7 +84,21 @@ export const cadastrar = async (dadosUsuario) => {
     } = dadosUsuario;
     
     // 1. Criar o usuário normal
-    const resCriar = await apiUsuarios.criar({ name, email, password });
+    const payloadUsuario = { 
+      name, email, password,
+      telefone,
+      endereco: {
+        rua: rua || "",
+        numero: numero || "",
+        complemento: complemento || "",
+        bairro: bairro || "",
+        cidade: cidade || "",
+        estado: estado || "",
+        cep: cep || ""
+      }
+    };
+    
+    const resCriar = await apiUsuarios.criar(payloadUsuario);
     if (!resCriar.ok) {
       return { sucesso: false, erro: resCriar.dados?.message || 'Este e-mail já está em uso ou erro no servidor.' };
     }

@@ -108,7 +108,7 @@ const Cadastro = () => {
 
       {/* Painel Direito — formulário */}
       <div className="painel-direito" style={{ background: '#fdfcf9' }}>
-        <div style={{ width: '100%', maxWidth: '440px' }} className="fade-in">
+        <div style={{ width: '100%', maxWidth: '440px', margin: 'auto' }} className="fade-in">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '36px' }}>
             <button type="button" onClick={irParaLogin}
               style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#9ca3af', fontSize: '0.875rem', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 500 }}>
@@ -154,14 +154,17 @@ const Cadastro = () => {
             {dados.isOng && (
               <div className="fade-in" style={{ marginTop: '16px', background: 'rgba(209,107,71,0.03)', padding: '16px', borderRadius: '12px', border: '1px solid rgba(209,107,71,0.1)' }}>
                 <h3 style={{ fontSize: '1.05rem', color: '#1f3024', marginBottom: '16px' }}>Dados da Instituição</h3>
-                <div className="cadastro-grade-dupla">
-                  <CampoFormulario rotulo="CNPJ" tipo="text" placeholder="00.000.000/0000-00" valor={dados.cnpj} aoMudar={e => setDados({ ...dados, cnpj: e.target.value })} icone={User} obrigatorio={dados.isOng} />
-                  <CampoFormulario rotulo="Telefone" tipo="tel" placeholder="(00) 00000-0000" valor={dados.telefone} aoMudar={e => setDados({ ...dados, telefone: e.target.value })} icone={Phone} obrigatorio={dados.isOng} />
-                </div>
+                <CampoFormulario rotulo="CNPJ" tipo="text" placeholder="00.000.000/0000-00" valor={dados.cnpj} aoMudar={e => setDados({ ...dados, cnpj: e.target.value })} icone={User} obrigatorio={dados.isOng} />
                 <CampoFormulario rotulo="Site ou Rede Social" tipo="url" placeholder="https://" valor={dados.linkSite} aoMudar={e => setDados({ ...dados, linkSite: e.target.value })} icone={PawPrint} obrigatorio={dados.isOng} />
                 <CampoFormulario rotulo="Descrição da ONG" tipo="text" placeholder="Conte sobre o trabalho de vocês..." valor={dados.descricao} aoMudar={e => setDados({ ...dados, descricao: e.target.value })} icone={PawPrint} obrigatorio={dados.isOng} />
-                
-                <h3 style={{ fontSize: '1.05rem', color: '#1f3024', marginTop: '24px', marginBottom: '16px' }}>Endereço</h3>
+              </div>
+            )}
+
+            <div className="fade-in" style={{ marginTop: '16px', padding: '8px 0' }}>
+              <h3 style={{ fontSize: '1.05rem', color: '#1f3024', marginBottom: '16px' }}>Informações de Contato e Endereço</h3>
+              <CampoFormulario rotulo="Telefone" tipo="tel" placeholder="(00) 00000-0000" valor={dados.telefone} aoMudar={e => setDados({ ...dados, telefone: e.target.value })} icone={Phone} />
+              
+              <h3 style={{ fontSize: '1.05rem', color: '#1f3024', marginTop: '24px', marginBottom: '16px' }}>Endereço</h3>
                 <div className="cadastro-grade-dupla">
                   <CampoFormulario rotulo="CEP" tipo="text" placeholder="00000-000" valor={dados.cep} aoMudar={e => setDados({ ...dados, cep: e.target.value })} icone={MapPin} obrigatorio={dados.isOng} />
                   <CampoFormulario rotulo="Estado (UF)" tipo="text" placeholder="SP" valor={dados.estado} aoMudar={e => setDados({ ...dados, estado: e.target.value })} icone={MapPin} obrigatorio={dados.isOng} />
@@ -175,8 +178,7 @@ const Cadastro = () => {
                   <CampoFormulario rotulo="Número" tipo="text" placeholder="1000" valor={dados.numero} aoMudar={e => setDados({ ...dados, numero: e.target.value })} icone={MapPin} obrigatorio={dados.isOng} />
                 </div>
                 <CampoFormulario rotulo="Complemento" tipo="text" placeholder="Apto, Sala (opcional)" valor={dados.complemento} aoMudar={e => setDados({ ...dados, complemento: e.target.value })} icone={MapPin} />
-              </div>
-            )}
+            </div>
 
             <div style={{ marginTop: '16px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(209,107,71,0.05)', padding: '12px 16px', borderRadius: '12px', border: '1px solid rgba(209,107,71,0.2)' }}>
               <input 

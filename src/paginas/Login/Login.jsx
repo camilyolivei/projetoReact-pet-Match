@@ -163,7 +163,7 @@ const Login = () => {
 
       {/* Painel Direito — formulário limpo */}
       <div className="painel-direito" style={{ background: '#fdfcf9' }}>
-        <div style={{ width: '100%', maxWidth: '400px' }} className="fade-in">
+        <div style={{ width: '100%', maxWidth: '400px', margin: 'auto' }} className="fade-in">
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '48px' }}>
             <p style={{ fontSize: '0.85rem', color: '#9ca3af', margin: 0 }}>
