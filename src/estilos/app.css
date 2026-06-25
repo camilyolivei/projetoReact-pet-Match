@@ -433,3 +433,43 @@
   .stats-grid      { grid-template-columns: 1fr; }
   .match-titulo    { font-size: 2.5rem; }
 }
+
+/* ─── Responsividade do Perfil ─── */
+.grid-responsivo-perfil {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.grid-responsivo-perfil-rua {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+}
+
+.botoes-grupo-responsive {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 520px) {
+  .premium-card {
+    padding: 20px !important;
+    border-radius: 20px !important;
+  }
+  .grid-responsivo-perfil,
+  .grid-responsivo-perfil-rua {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+  .botoes-grupo-responsive {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .botoes-grupo-responsive button {
+    width: 100% !important;
+    flex: none !important;
+  }
+}

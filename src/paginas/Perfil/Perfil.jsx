@@ -119,11 +119,11 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
             <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px' }}>
               <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <Phone size={20} color="#6b7280" />
-                <span>{usuarioAtual?.telefone || 'Telefone não cadastrado'}</span>
+                <span style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{usuarioAtual?.telefone || 'Telefone não cadastrado'}</span>
               </div>
               <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <MapPin size={20} color="#6b7280" />
-                <span>{enderecoFormatado || 'Endereço não cadastrado'}</span>
+                <span style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{enderecoFormatado || 'Endereço não cadastrado'}</span>
               </div>
               
               {usuarioAtual?.isOng && (
@@ -131,30 +131,31 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
                   {usuarioAtual.cnpj && (
                     <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <span style={{ fontWeight: 700, color: '#6b7280', fontSize: '0.8rem', textTransform: 'uppercase' }}>CNPJ</span>
-                      <span>{usuarioAtual.cnpj}</span>
+                      <span style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{usuarioAtual.cnpj}</span>
                     </div>
                   )}
                   {usuarioAtual.link_site && (
                     <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <span style={{ fontWeight: 700, color: '#6b7280', fontSize: '0.8rem', textTransform: 'uppercase' }}>Site/Rede</span>
-                      <a href={usuarioAtual.link_site.startsWith('http') ? usuarioAtual.link_site : `https://${usuarioAtual.link_site}`} target="_blank" rel="noreferrer" style={{ color: '#d16b47', textDecoration: 'underline' }}>{usuarioAtual.link_site}</a>
+                      <a href={usuarioAtual.link_site.startsWith('http') ? usuarioAtual.link_site : `https://${usuarioAtual.link_site}`} target="_blank" rel="noreferrer" style={{ flex: 1, minWidth: 0, wordBreak: 'break-all', color: '#d16b47', textDecoration: 'underline' }}>{usuarioAtual.link_site}</a>
                     </div>
                   )}
                   {usuarioAtual.descricao && (
                     <div style={{ padding: '20px', borderRadius: '20px', background: '#f9fafb', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <span style={{ fontWeight: 700, color: '#6b7280', fontSize: '0.8rem', textTransform: 'uppercase' }}>Descrição da ONG</span>
-                      <span style={{ lineHeight: 1.6, fontSize: '0.95rem' }}>{usuarioAtual.descricao}</span>
+                      <span style={{ lineHeight: 1.6, fontSize: '0.95rem', wordBreak: 'break-word' }}>{usuarioAtual.descricao}</span>
                     </div>
                   )}
                 </>
               )}
             </div>
-            <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'nowrap' }}>
-              <button className="btn-outline-premium" style={{ marginTop: 0, width: 'auto', flex: 1 }} onClick={() => setEditando(true)}>
+            <div className="botoes-grupo-responsive">
+              <button className="btn-outline-premium" style={{ marginTop: 0, flex: 1 }} onClick={() => setEditando(true)}>
                 <Edit size={16} /> Editar Perfil Completo
               </button>
               <button 
-                style={{ marginTop: 0, width: 'auto', flex: 1, background: 'rgba(239,68,68,0.05)', border: '1.5px solid #fca5a5', color: '#ef4444', padding: '0 24px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s', height: '44px', whiteSpace: 'nowrap' }}
+                className="btn-outline-premium"
+                style={{ marginTop: 0, flex: 1, background: 'rgba(239,68,68,0.05)', border: '1.5px solid #fca5a5', color: '#ef4444' }}
                 onClick={() => {
                   if(window.confirm('Tem certeza que deseja excluir sua conta permanentemente? Esta ação não pode ser desfeita.')) {
                     excluirPerfil();
@@ -201,20 +202,20 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
             )}
 
             <h4 style={{ marginTop: '32px', marginBottom: '16px', fontSize: '1.1rem', fontWeight: 600, color: '#1f3024' }}>Endereço Completo</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="grid-responsivo-perfil">
                   <div className="campo-wrapper"><label className="campo-rotulo">CEP</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.cep} onChange={evento => setDadosEdicao({ ...dadosEdicao, cep: evento.target.value })} /></div>
                   <div className="campo-wrapper"><label className="campo-rotulo">Estado (UF)</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.estado} onChange={evento => setDadosEdicao({ ...dadosEdicao, estado: evento.target.value })} /></div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div className="grid-responsivo-perfil">
                   <div className="campo-wrapper"><label className="campo-rotulo">Cidade</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.cidade} onChange={evento => setDadosEdicao({ ...dadosEdicao, cidade: evento.target.value })} /></div>
                   <div className="campo-wrapper"><label className="campo-rotulo">Bairro</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.bairro} onChange={evento => setDadosEdicao({ ...dadosEdicao, bairro: evento.target.value })} /></div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+                <div className="grid-responsivo-perfil-rua">
                   <div className="campo-wrapper"><label className="campo-rotulo">Rua/Avenida</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.rua} onChange={evento => setDadosEdicao({ ...dadosEdicao, rua: evento.target.value })} /></div>
                   <div className="campo-wrapper"><label className="campo-rotulo">Número</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.numero} onChange={evento => setDadosEdicao({ ...dadosEdicao, numero: evento.target.value })} /></div>
                 </div>
                 <div className="campo-wrapper"><label className="campo-rotulo">Complemento</label><input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao.complemento} onChange={evento => setDadosEdicao({ ...dadosEdicao, complemento: evento.target.value })} /></div>
-            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+            <div className="botoes-grupo-responsive" style={{ marginTop: '24px' }}>
               <button className="btn-submit-premium" style={{ marginTop: 0 }} onClick={aoSalvar}><Save size={16} /> Salvar</button>
               <button className="btn-outline-premium" style={{ marginTop: 0 }} onClick={() => setEditando(false)}>Cancelar</button>
             </div>
