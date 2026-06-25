@@ -1,10 +1,14 @@
-# PetMatch 🐾 - Encontre seu Novo Melhor Amigo
+<p align="center">
+  <img src="src/assets/img/logo.svg" alt="PetMatch Logo" width="120" />
+</p>
+
+<h1 align="center">PetMatch - Encontre seu Novo Melhor Amigo</h1>
 
 O **PetMatch** é uma plataforma moderna e interativa desenvolvida em React + Vite para conectar protetores de animais (ONGs) a adotantes em potencial (tutores). Inspirado na mecânica de deslizamento de cartões (Tinder), o sistema facilita a adoção responsável de animais de estimação, o reporte de resgates de animais em situação de risco e o controle financeiro de doações.
 
 ---
 
-## 🚀 Como Executar o Projeto Passo a Passo
+## Como Executar o Projeto Passo a Passo
 
 Siga as instruções abaixo para rodar o projeto localmente em sua máquina.
 
@@ -29,7 +33,7 @@ Inicie o ambiente de desenvolvimento local:
 npm run dev
 ```
 O console exibirá o endereço local, geralmente:
-👉 **[http://localhost:5174/](http://localhost:5174/)** ou **[http://localhost:5173/](http://localhost:5173/)**
+* http://localhost:5174/ ou http://localhost:5173/
 
 ### 4. Build de Produção
 Para gerar a versão otimizada para publicação:
@@ -51,14 +55,14 @@ npm run deploy
 
 ---
 
-## 🔑 Credenciais de Teste
+## Credenciais de Teste
 Para testar a conexão real com a API sem precisar criar um novo cadastro:
-* **Usuário:** `leo@gmail.com`
-* **Senha:** `leo123`
+* **Usuário:** leo@gmail.com
+* **Senha:** leo123
 
 ---
 
-## 📱 Telas e Funcionalidades do Projeto
+## Telas e Funcionalidades do Projeto
 
 O sistema conta com dois tipos de perfis distintos (Tutor Comum e ONG), que adaptam as opções visíveis no menu lateral:
 
@@ -84,11 +88,11 @@ O sistema conta com dois tipos de perfis distintos (Tutor Comum e ONG), que adap
    - Central de doações para apoiar financeiramente ONGs cadastradas.
 8. **Meu Perfil**:
    - Gerenciamento de avatar e informações pessoais.
-   - Interface **100% responsiva** para celulares com empilhamento de botões de ação e campos de endereço em colunas adaptáveis.
+   - Interface 100% responsiva para celulares com empilhamento de botões de ação e campos de endereço em colunas adaptáveis.
 
 ---
 
-## 🏗️ Arquitetura do Projeto
+## Arquitetura do Projeto
 
 A organização de pastas segue boas práticas do React para manter a escalabilidade do código:
 
