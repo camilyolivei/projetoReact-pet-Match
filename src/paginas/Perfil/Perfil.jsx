@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Edit, Camera, Save, Trash2 } from 'lucide-react';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina/CabecalhoPagina.jsx';
 import { AvatarUsuario } from '../../componentes/SobreposicaoMatch/SobreposicaoMatch.jsx';
+import { apiEnderecos } from '../../servicos/api.js';
 
 const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificacao }) => {
   const [editando, setEditando] = useState(false);
@@ -30,24 +31,19 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
         descricao: usuarioAtual.descricao || ''
       }));
 
-      // Se for ONG e tiver endereco_id, busca na API (legado)
+      // Se for ONG e tiver endereco_id, busca na API
       if (usuarioAtual.isOng && usuarioAtual.endereco_id) {
         const buscarEndereco = async () => {
-          try {
-            const token = localStorage.getItem('petmatch_token');
-            const res = await fetch(`https://pets-api-gt48.onrender.com/enderecos/${usuarioAtual.endereco_id}`, {
-              headers: { 'Authorization': `Bearer ${token}` }
-            });
-            if (res.ok) {
-              const end = await res.json();
-              setDadosEdicao(dadosAnteriores => ({
-                ...dadosAnteriores,
-                rua: end.rua || '', numero: end.numero || '', complemento: end.complemento || '',
-                bairro: end.bairro || '', cidade: end.cidade || '', estado: end.estado || '', cep: end.cep || ''
-              }));
-              setEnderecoFormatado(`${end.rua || ''}, ${end.numero || ''} - ${end.bairro || ''}, ${end.cidade || ''}/${end.estado || ''}`);
-            }
-          } catch (e) { console.error('Erro ao buscar endereço:', e); }
+          const res = await apiEnderecos.obter(usuarioAtual.endereco_id);
+          if (res.ok) {
+            const end = res.dados;
+            setDadosEdicao(dadosAnteriores => ({
+              ...dadosAnteriores,
+              rua: end.rua || '', numero: end.numero || '', complemento: end.complemento || '',
+              bairro: end.bairro || '', cidade: end.cidade || '', estado: end.estado || '', cep: end.cep || ''
+            }));
+            setEnderecoFormatado(`${end.rua || ''}, ${end.numero || ''} - ${end.bairro || ''}, ${end.cidade || ''}/${end.estado || ''}`);
+          }
         };
         buscarEndereco();
       } else if (usuarioAtual.endereco && typeof usuarioAtual.endereco === 'object') {

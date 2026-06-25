@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { apiPets } from '../../servicos/api.js';
+import { apiPets, apiAdocoes, apiDoacoes, apiResgates, apiEnderecos, apiInstituicoes, apiUsuarios } from '../../servicos/api.js';
 
 import Notificacao from '../../componentes/Notificacao/Notificacao.jsx';
 import BarraLateral from '../../componentes/BarraLateral/BarraLateral.jsx';
@@ -15,7 +15,6 @@ import Adocao from '../Adocao/Adocao.jsx';
 import Dashboard from '../Dashboard/Dashboard.jsx';
 import Doacoes from '../Doacoes/Doacoes.jsx';
 import Resgate from '../Resgate/Resgate.jsx';
-import { apiAdocoes, apiDoacoes, apiResgates } from '../../servicos/api.js';
 import { AppContext } from '../../context/AppContext.jsx';
 
 // Variável do canal de comunicação entre abas
@@ -233,7 +232,6 @@ const AppInterno = () => {
   }
 
   async function atualizarPerfil(dadosNovos) {
-    // Tenta atualizar no backend
     try {
       const payload = {
         name: dadosNovos.name,
@@ -250,18 +248,12 @@ const AppInterno = () => {
       };
 
       if (usuario.isOng && usuario.instituicao_id) {
-        // Se for ONG, adicionamos os novos campos ao payload principal
         if (dadosNovos.cnpj !== undefined) payload.cnpj = dadosNovos.cnpj;
         if (dadosNovos.linkSite !== undefined) payload.link_site = dadosNovos.linkSite;
         if (dadosNovos.descricao !== undefined) payload.descricao = dadosNovos.descricao;
 
-        await fetch(`https://pets-api-gt48.onrender.com/instituicoes/${usuario.instituicao_id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('petmatch_token')}` },
-          body: JSON.stringify(payload)
-        });
+        await apiInstituicoes.atualizar(usuario.instituicao_id, payload);
 
-        // Se houver endereco_id, também atualizamos o endereço na API de endereços
         if (usuario.endereco_id && dadosNovos.rua !== undefined) {
           const payloadEndereco = {
             rua: dadosNovos.rua,
@@ -272,26 +264,16 @@ const AppInterno = () => {
             estado: dadosNovos.estado,
             cep: dadosNovos.cep
           };
-          await fetch(`https://pets-api-gt48.onrender.com/enderecos/${usuario.endereco_id}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('petmatch_token')}` },
-            body: JSON.stringify(payloadEndereco)
-          });
+          await apiEnderecos.atualizar(usuario.endereco_id, payloadEndereco);
         }
       } else {
-        await fetch(`https://pets-api-gt48.onrender.com/usuarios/${usuario.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('petmatch_token')}` },
-          body: JSON.stringify(payload)
-        });
+        await apiUsuarios.atualizar(usuario.id, payload);
       }
     } catch (e) {
       console.error("Erro ao atualizar perfil na API", e);
     }
 
-    // Atualiza estado local mapeando corretamente os campos
     const dadosMerge = { ...dadosNovos };
-    // Converte nomenclatura de camelCase para o padrão snake_case esperado pela API
     if (dadosNovos.linkSite !== undefined) dadosMerge.link_site = dadosNovos.linkSite;
     setUsuario({ ...usuario, ...dadosMerge });
   }
@@ -299,9 +281,9 @@ const AppInterno = () => {
   async function excluirPerfil() {
     try {
       if (usuario.isOng && usuario.instituicao_id) {
-        await fetch(`https://pets-api-gt48.onrender.com/instituicoes/${usuario.instituicao_id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('petmatch_token')}` } });
+        await apiInstituicoes.remover(usuario.instituicao_id);
       }
-      await fetch(`https://pets-api-gt48.onrender.com/usuarios/${usuario.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${localStorage.getItem('petmatch_token')}` } });
+      await apiUsuarios.remover(usuario.id);
     } catch (e) {
       console.error("Erro ao excluir perfil na API", e);
     }
@@ -358,30 +340,22 @@ const AppInterno = () => {
   }
 
   async function excluirResgate(id) {
-    try {
-      await fetch(`https://pets-api-gt48.onrender.com/resgates/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'excluido' })
-      });
+    const resposta = await apiResgates.atualizarStatus(id, 'excluido');
+    if (resposta.ok) {
       setResgates(resgatesAnteriores => resgatesAnteriores.filter(resgate => resgate.id !== id));
       exibirNotificacao('Resgate excluído com sucesso!');
-    } catch {
+    } else {
       exibirNotificacao('Erro ao excluir resgate.', 'erro');
     }
   }
 
   // Editar Resgate (Simula edição excluindo o antigo e criando um novo)
   async function editarResgate(idAntigo, novaDesc, novaLoc) {
-    try {
-      await fetch(`https://pets-api-gt48.onrender.com/resgates/${idAntigo}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'excluido' })
-      });
+    const resposta = await apiResgates.atualizarStatus(idAntigo, 'excluido');
+    if (resposta.ok) {
       await reportarResgate({ descricao: novaDesc, localizacao: novaLoc });
       exibirNotificacao('Resgate atualizado com sucesso!');
-    } catch {
+    } else {
       exibirNotificacao('Erro ao editar resgate.', 'erro');
     }
   }
