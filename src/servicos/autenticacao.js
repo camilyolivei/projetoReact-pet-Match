@@ -41,7 +41,7 @@ export const entrar = async (email, password) => {
     
     let dadosInstituicao = {};
     if (resInst.ok && Array.isArray(resInst.dados)) {
-      const inst = resInst.dados.find(i => i.email.toLowerCase() === email.toLowerCase());
+      const inst = resInst.dados.find(instituicao => instituicao.email.toLowerCase() === email.toLowerCase());
       if (inst) {
         instituicao_id = inst.id;
         isOng = true;

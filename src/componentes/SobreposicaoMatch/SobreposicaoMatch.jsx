@@ -36,8 +36,8 @@ const SobreposicaoMatch = ({ petMatch, usuarioAtual, aoAdotar, aoContinuar }) =>
         <button 
           onClick={aoContinuar}
           style={{ position: 'absolute', top: '20px', right: '20px', background: '#f3f4f6', border: 'none', borderRadius: '50%', padding: '10px', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-          onMouseOver={e => e.currentTarget.style.background = '#e5e7eb'}
-          onMouseOut={e => e.currentTarget.style.background = '#f3f4f6'}
+          onMouseOver={evento => evento.currentTarget.style.background = '#e5e7eb'}
+          onMouseOut={evento => evento.currentTarget.style.background = '#f3f4f6'}
         >
           <X size={20} color="#4b5563" />
         </button>
@@ -82,8 +82,8 @@ const SobreposicaoMatch = ({ petMatch, usuarioAtual, aoAdotar, aoContinuar }) =>
             marginBottom: '12px'
           }} 
           onClick={aoAdotar}
-          onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = '#3a5c42'; }}
-          onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#1f3024'; }}
+          onMouseOver={evento => { evento.currentTarget.style.transform = 'translateY(-2px)'; evento.currentTarget.style.background = '#3a5c42'; }}
+          onMouseOut={evento => { evento.currentTarget.style.transform = 'translateY(0)'; evento.currentTarget.style.background = '#1f3024'; }}
         >
           Quero Adotar
         </button>
@@ -95,8 +95,8 @@ const SobreposicaoMatch = ({ petMatch, usuarioAtual, aoAdotar, aoContinuar }) =>
             transition: 'color 0.2s, background 0.2s'
           }} 
           onClick={aoContinuar}
-          onMouseOver={e => { e.currentTarget.style.color = '#1f3024'; e.currentTarget.style.background = 'rgba(0,0,0,0.03)'; }}
-          onMouseOut={e => { e.currentTarget.style.color = '#6b7280'; e.currentTarget.style.background = 'transparent'; }}
+          onMouseOver={evento => { evento.currentTarget.style.color = '#1f3024'; evento.currentTarget.style.background = 'rgba(0,0,0,0.03)'; }}
+          onMouseOut={evento => { evento.currentTarget.style.color = '#6b7280'; evento.currentTarget.style.background = 'transparent'; }}
         >
           Continuar deslizando
         </button>

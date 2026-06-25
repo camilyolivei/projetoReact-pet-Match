@@ -27,8 +27,8 @@ const Descobrir = ({ pets, adocoes = [], usuarioAtual, exibirNotificacao, setTel
           });
           setPetsDisponiveis(filtrados);
         }
-      } catch (e) {
-        console.error(e);
+      } catch (erro) {
+        console.error(erro);
       } finally {
         setCarregando(false);
       }
@@ -39,7 +39,7 @@ const Descobrir = ({ pets, adocoes = [], usuarioAtual, exibirNotificacao, setTel
   const petAtual = petsDisponiveis[0];
 
   const avancarPet = () => {
-    setPetsDisponiveis(prev => prev.slice(1));
+    setPetsDisponiveis(petsAnteriores => petsAnteriores.slice(1));
   };
 
   const darLike = async () => {
@@ -181,8 +181,8 @@ const Descobrir = ({ pets, adocoes = [], usuarioAtual, exibirNotificacao, setTel
                     cursor: 'pointer',
                     transition: 'all 0.2s',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = '#16a34a'; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = '#22c55e'; }}
+                  onMouseEnter={(evento) => { evento.currentTarget.style.background = '#16a34a'; }}
+                  onMouseLeave={(evento) => { evento.currentTarget.style.background = '#22c55e'; }}
                 >
                   Ver próximo
                 </button>
@@ -203,13 +203,13 @@ const Descobrir = ({ pets, adocoes = [], usuarioAtual, exibirNotificacao, setTel
                     justifyContent: 'center',
                     transition: 'all 0.2s',
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#fef2f2';
-                    e.currentTarget.style.transform = 'scale(1.1)';
+                  onMouseEnter={(evento) => {
+                    evento.currentTarget.style.background = '#fef2f2';
+                    evento.currentTarget.style.transform = 'scale(1.1)';
                   }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'white';
-                    e.currentTarget.style.transform = 'scale(1)';
+                  onMouseLeave={(evento) => {
+                    evento.currentTarget.style.background = 'white';
+                    evento.currentTarget.style.transform = 'scale(1)';
                   }}
                 >
                   <X size={28} color="#ef4444" />
@@ -228,13 +228,13 @@ const Descobrir = ({ pets, adocoes = [], usuarioAtual, exibirNotificacao, setTel
                     justifyContent: 'center',
                     transition: 'all 0.2s',
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                    e.currentTarget.style.boxShadow = '0 12px 28px rgba(31, 48, 36, 0.3)';
+                  onMouseEnter={(evento) => {
+                    evento.currentTarget.style.transform = 'scale(1.1)';
+                    evento.currentTarget.style.boxShadow = '0 12px 28px rgba(31, 48, 36, 0.3)';
                   }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
+                  onMouseLeave={(evento) => {
+                    evento.currentTarget.style.transform = 'scale(1)';
+                    evento.currentTarget.style.boxShadow = 'none';
                   }}
                 >
                   <Heart size={28} color="#d16b47" fill="#d16b47" />

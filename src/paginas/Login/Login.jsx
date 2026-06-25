@@ -1,17 +1,32 @@
 import { useState, useEffect } from 'react';
 import { Mail, Lock, EyeOff, Eye, PawPrint, ArrowRight, User, Shield, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import bgDog from '../../assets/dog.png';
+import bgDog from '../../assets/img/dog.png';
 import { entrar } from '../../servicos/autenticacao.js';
 import CampoFormulario from '../../componentes/CampoFormulario/CampoFormulario.jsx';
 import Botao from '../../componentes/Botao/Botao.jsx';
 import Notificacao from '../../componentes/Notificacao/Notificacao.jsx';
+import { useForm, VALIDADORES_REGEX } from '../../hooks/useForm.js';
 import './login.css';
+
+const regrasValidacaoLogin = {
+  email: {
+    required: true,
+    mensagemErroObrigatorio: 'O e-mail é obrigatório.',
+    regex: VALIDADORES_REGEX.email,
+    mensagemErroRegex: 'Por favor, insira um e-mail válido.'
+  },
+  senha: {
+    required: true,
+    mensagemErroObrigatorio: 'A senha é obrigatória.',
+    minLength: 6,
+    mensagemErroMinLength: 'A senha deve conter no mínimo 6 caracteres.'
+  }
+};
 
 const Login = () => {
   const navegar = useNavigate();
 
-  const [dadosLogin, setDadosLogin] = useState({ email: '', senha: '' });
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarModalEsqueci, setMostrarModalEsqueci] = useState(false);
   const [emailEsqueci, setEmailEsqueci] = useState('');
@@ -22,7 +37,7 @@ const Login = () => {
 
   useEffect(() => {
     if (!toast.show) return;
-    const timer = setTimeout(() => setToast(t => ({ ...t, show: false })), 3000);
+    const timer = setTimeout(() => setToast(toastAnterior => ({ ...toastAnterior, show: false })), 3000);
     return () => clearTimeout(timer);
   }, [toast.show]);
 
@@ -30,28 +45,30 @@ const Login = () => {
     setToast({ show: true, message: mensagem, type: tipo });
   };
 
-  const aoEnviarLogin = async (e) => {
-    e.preventDefault();
+  const {
+    valores: dadosLogin,
+    erros: errosLogin,
+    handleChange: aoMudarLogin,
+    handleBlur: aoBlurLogin,
+    handleSubmit: aoEnviarLogin,
+    setValores: setDadosLogin
+  } = useForm({ email: '', senha: '' }, regrasValidacaoLogin, async (valoresFormulario) => {
     setCarregando(true);
-
-    const resultado = await entrar(dadosLogin.email, dadosLogin.senha);
-
+    const resultado = await entrar(valoresFormulario.email, valoresFormulario.senha);
     setCarregando(false);
 
     if (resultado.sucesso) {
-      // Salva o usuário no formato esperado pelo AppContext
       const usuario = resultado.usuario?.usuario || resultado.usuario || {};
       localStorage.setItem('petmatch_current_user', JSON.stringify(usuario));
       exibirNotificacao('Que bom ter você de volta!');
-      setDadosLogin({ email: '', senha: '' });
       navegar('/app');
     } else {
       exibirNotificacao(resultado.erro || 'E-mail ou senha incorretos!', 'error');
     }
-  };
+  });
 
-  const aoEnviarEsqueci = async (e) => {
-    e.preventDefault();
+  const aoEnviarEsqueci = async (evento) => {
+    evento.preventDefault();
     if (novaSenha !== confirmarNovaSenha) {
       return exibirNotificacao('As senhas não coincidem!', 'error');
     }
@@ -77,7 +94,7 @@ const Login = () => {
       {/* Modal Esqueci Minha Senha */}
       {mostrarModalEsqueci && (
         <div className="sobreposicao-modal" onClick={() => setMostrarModalEsqueci(false)}>
-          <div className="conteudo-modal fade-in" onClick={e => e.stopPropagation()}>
+          <div className="conteudo-modal fade-in" onClick={evento => evento.stopPropagation()}>
             <button className="botao-fechar-modal" onClick={() => setMostrarModalEsqueci(false)}><X size={24} /></button>
             <h2 className="login-titulo-secao" style={{ fontSize: '2rem' }}>Redefinir Senha</h2>
             <p className="login-subtitulo-secao" style={{ marginBottom: '32px' }}>Insira seu e-mail e a nova senha desejada.</p>
@@ -87,7 +104,7 @@ const Login = () => {
                 tipo="email"
                 placeholder="Seu e-mail"
                 valor={emailEsqueci}
-                aoMudar={e => setEmailEsqueci(e.target.value)}
+                aoMudar={evento => setEmailEsqueci(evento.target.value)}
                 icone={Mail}
                 obrigatorio
               />
@@ -96,7 +113,7 @@ const Login = () => {
                 tipo="password"
                 placeholder="Mínimo 6 caracteres"
                 valor={novaSenha}
-                aoMudar={e => setNovaSenha(e.target.value)}
+                aoMudar={evento => setNovaSenha(evento.target.value)}
                 icone={Lock}
                 obrigatorio
                 tamanhoMinimo={6}
@@ -106,7 +123,7 @@ const Login = () => {
                 tipo="password"
                 placeholder="Confirme a senha"
                 valor={confirmarNovaSenha}
-                aoMudar={e => setConfirmarNovaSenha(e.target.value)}
+                aoMudar={evento => setConfirmarNovaSenha(evento.target.value)}
                 icone={Lock}
                 obrigatorio
                 tamanhoMinimo={6}
@@ -142,8 +159,8 @@ const Login = () => {
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '14px 18px', maxWidth: '360px' }}>
             <div style={{ display: 'flex', marginRight: '4px' }}>
-              {['#d16b47', '#e8956b', '#c4563a'].map((c, i) => (
-                <div key={i} style={{ width: '30px', height: '30px', borderRadius: '50%', background: c, border: '2px solid rgba(255,255,255,0.15)', marginLeft: i > 0 ? '-8px' : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>🐾</div>
+              {['#d16b47', '#e8956b', '#c4563a'].map((cor, indice) => (
+                <div key={indice} style={{ width: '30px', height: '30px', borderRadius: '50%', background: cor, border: '2px solid rgba(255,255,255,0.15)', marginLeft: indice > 0 ? '-8px' : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem' }}>🐾</div>
               ))}
             </div>
             <div>
@@ -182,28 +199,40 @@ const Login = () => {
 
           <form onSubmit={aoEnviarLogin}>
             <CampoFormulario
+              name="email"
               rotulo="E-mail"
               tipo="email"
               placeholder="seu@email.com"
               valor={dadosLogin.email}
-              aoMudar={e => setDadosLogin({ ...dadosLogin, email: e.target.value })}
+              aoMudar={aoMudarLogin}
+              aoBlur={aoBlurLogin}
+              erro={errosLogin.email}
               icone={Mail}
               obrigatorio
             />
             <div className="campo-wrapper">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                 <label className="campo-rotulo" style={{ margin: 0 }}>Senha</label>
-                <a href="#" onClick={e => { e.preventDefault(); setMostrarModalEsqueci(true); }}
+                <a href="#" onClick={evento => { evento.preventDefault(); setMostrarModalEsqueci(true); }}
                   style={{ fontSize: '0.78rem', color: '#d16b47', fontWeight: 600, textDecoration: 'none' }}>Esqueci a senha</a>
               </div>
               <div className="campo-grupo">
                 <Lock className="campo-icone" size={17} />
-                <input type={mostrarSenha ? 'text' : 'password'} placeholder="Sua senha" className="campo-entrada"
-                  value={dadosLogin.senha} onChange={e => setDadosLogin({ ...dadosLogin, senha: e.target.value })} required />
+                <input 
+                  name="senha"
+                  type={mostrarSenha ? 'text' : 'password'} 
+                  placeholder="Sua senha" 
+                  className={`campo-entrada ${errosLogin.senha ? 'campo-entrada-erro' : ''}`}
+                  value={dadosLogin.senha} 
+                  onChange={aoMudarLogin} 
+                  onBlur={aoBlurLogin}
+                  required 
+                />
                 <button type="button" className="campo-acao" onClick={() => setMostrarSenha(!mostrarSenha)}>
                   {mostrarSenha ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
+              {errosLogin.senha && <span className="campo-erro-mensagem">{errosLogin.senha}</span>}
             </div>
             <Botao tipo="submit" estilo={{ marginTop: '20px', height: '48px', borderRadius: '12px', fontSize: '0.95rem' }} desabilitado={carregando}>
               {carregando ? (

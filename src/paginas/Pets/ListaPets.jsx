@@ -3,7 +3,7 @@ import { PawPrint, Trash2, Pencil, Syringe, Scissors } from 'lucide-react';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina/CabecalhoPagina.jsx';
 
 const ListaPets = ({ pets, usuarioAtual, setTela, setPetEditando, removerPet, exibirNotificacao }) => {
-  const meusPets = pets.filter(p => p.owner_id === (usuarioAtual?.isOng ? usuarioAtual?.instituicao_id : usuarioAtual?.id));
+  const meusPets = pets.filter(pet => pet.owner_id === (usuarioAtual?.isOng ? usuarioAtual?.instituicao_id : usuarioAtual?.id));
 
   return (
     <div className="fade-in">

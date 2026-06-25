@@ -121,20 +121,20 @@ const AppInterno = () => {
             if (respostaInst.ok && Array.isArray(respostaInst.dados)) {
               todasAdocoes = [...todasAdocoes, ...respostaInst.dados];
             }
-            const unicas = Array.from(new Map(todasAdocoes.map(item => [item.id, item])).values());
+            const unicas = Array.from(new Map(todasAdocoes.map(adocao => [adocao.id, adocao])).values());
             setAdocoes(unicas);
           });
 
           apiDoacoes.porInstituicao(usuario.instituicao_id).then((respostaDoacao) => {
             if (respostaDoacao.ok && Array.isArray(respostaDoacao.dados)) {
-              setDoacoes(prev => {
+              setDoacoes(doacoesAnteriores => {
                 const map = new Map();
-                [...prev, ...respostaDoacao.dados].forEach(d => map.set(d.id, d));
+                [...doacoesAnteriores, ...respostaDoacao.dados].forEach(doacao => map.set(doacao.id, doacao));
                 return Array.from(map.values());
               });
 
-              setDonationTotal(prevTotal => {
-                const apiTotal = respostaDoacao.dados.reduce((acc, curr) => acc + (parseFloat(curr.quantidade) || 0), 0);
+              setDonationTotal(totalAnterior => {
+                const apiTotal = respostaDoacao.dados.reduce((acumulador, doacaoAtual) => acumulador + (parseFloat(doacaoAtual.quantidade) || 0), 0);
                 return apiTotal;
               });
             }
@@ -143,9 +143,9 @@ const AppInterno = () => {
           setAdocoes(todasAdocoes);
           apiDoacoes.porUsuario(usuario.id).then((respostaDoacao) => {
             if (respostaDoacao.ok && Array.isArray(respostaDoacao.dados)) {
-              setDoacoes(prev => {
+              setDoacoes(doacoesAnteriores => {
                 const map = new Map();
-                [...prev, ...respostaDoacao.dados].forEach(d => map.set(d.id, d));
+                [...doacoesAnteriores, ...respostaDoacao.dados].forEach(doacao => map.set(doacao.id, doacao));
                 return Array.from(map.values());
               });
             }
@@ -155,7 +155,7 @@ const AppInterno = () => {
 
       apiResgates.listar().then((respostaResgates) => {
         if (respostaResgates.ok && Array.isArray(respostaResgates.dados)) {
-          setResgates(respostaResgates.dados.filter(r => r.status !== 'excluido'));
+          setResgates(respostaResgates.dados.filter(resgate => resgate.status !== 'excluido'));
         }
       });
     };
@@ -327,8 +327,8 @@ const AppInterno = () => {
   async function fazerDoacao(dados) {
     const resposta = await apiDoacoes.criar(dados);
     if (resposta.ok) {
-      setDoacoes(prev => [...prev, resposta.dados]);
-      setDonationTotal(prev => prev + parseFloat(dados.quantidade));
+      setDoacoes(doacoesAnteriores => [...doacoesAnteriores, resposta.dados]);
+      setDonationTotal(totalAnterior => totalAnterior + parseFloat(dados.quantidade));
     } else {
       exibirNotificacao('Erro na API: O banco de dados recusou a transação (Verifique TIPOS_DOACAO).', 'erro');
     }
@@ -341,10 +341,10 @@ const AppInterno = () => {
       // Tentar buscar imediatamente para pegar o ID real
       apiResgates.listar().then(resBusca => {
         if (resBusca.ok && Array.isArray(resBusca.dados)) {
-          const resgatesAtivos = resBusca.dados.filter(r => r.status !== 'excluido');
+          const resgatesAtivos = resBusca.dados.filter(resgate => resgate.status !== 'excluido');
           setResgates(resgatesAtivos);
           // O resgate mais recente com esse texto será o nosso
-          const meuCriado = resgatesAtivos.find(r => r.descricao === payloadCombinado);
+          const meuCriado = resgatesAtivos.find(resgate => resgate.descricao === payloadCombinado);
           if (meuCriado) {
             const meus = JSON.parse(localStorage.getItem('petmatch_meus_resgates') || '[]');
             if (!meus.includes(meuCriado.id)) meus.push(meuCriado.id);
@@ -364,7 +364,7 @@ const AppInterno = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'excluido' })
       });
-      setResgates(prev => prev.filter(r => r.id !== id));
+      setResgates(resgatesAnteriores => resgatesAnteriores.filter(resgate => resgate.id !== id));
       exibirNotificacao('Resgate excluído com sucesso!');
     } catch {
       exibirNotificacao('Erro ao excluir resgate.', 'erro');
@@ -390,23 +390,23 @@ const AppInterno = () => {
   async function atualizarStatusAdocao(adocaoId, novoStatus, petId) {
     await apiAdocoes.atualizar(adocaoId, { status: novoStatus });
 
-    let novasAdocoes = adocoes.map((a) => (a.id === adocaoId ? { ...a, status: novoStatus } : a));
+    let novasAdocoes = adocoes.map((adocao) => (adocao.id === adocaoId ? { ...adocao, status: novoStatus } : adocao));
 
     // Se a adoção foi aprovada, marca o pet como indisponível e recusa as outras solicitações para este pet
     if (novoStatus === 'aprovada') {
       await atualizarPet(petId, { ativo: false });
 
       // Recusar as outras adoções para o mesmo pet
-      const outrasAdocoes = novasAdocoes.filter(a => a.petId === petId && a.id !== adocaoId && a.status === 'pendente');
+      const outrasAdocoes = novasAdocoes.filter(adocao => adocao.petId === petId && adocao.id !== adocaoId && adocao.status === 'pendente');
       for (const adocao of outrasAdocoes) {
         await apiAdocoes.atualizar(adocao.id, { status: 'recusada' });
       }
 
-      novasAdocoes = novasAdocoes.map(a => {
-        if (a.petId === petId && a.id !== adocaoId && a.status === 'pendente') {
-          return { ...a, status: 'recusada' };
+      novasAdocoes = novasAdocoes.map(adocao => {
+        if (adocao.petId === petId && adocao.id !== adocaoId && adocao.status === 'pendente') {
+          return { ...adocao, status: 'recusada' };
         }
-        return a;
+        return adocao;
       });
     }
 

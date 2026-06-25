@@ -5,8 +5,8 @@ import CabecalhoPagina from '../../componentes/CabecalhoPagina/CabecalhoPagina.j
 const Adocao = ({ adocoes, pets, usuarioAtual, atualizarStatusAdocao, exibirNotificacao }) => {
   const [abaAtiva, setAbaAtiva] = useState('enviadas');
 
-  const adocoesEnviadas = adocoes.filter(a => String(a.usuario_id) === String(usuarioAtual?.id));
-  const adocoesRecebidas = adocoes.filter(a => String(a.usuario_id) !== String(usuarioAtual?.id));
+  const adocoesEnviadas = adocoes.filter(adocao => String(adocao.usuario_id) === String(usuarioAtual?.id));
+  const adocoesRecebidas = adocoes.filter(adocao => String(adocao.usuario_id) !== String(usuarioAtual?.id));
 
   const corBadge = (status) => status === 'aprovada' ? 'verde' : status === 'recusada' ? 'cinza' : 'laranja';
 
@@ -44,29 +44,29 @@ const Adocao = ({ adocoes, pets, usuarioAtual, atualizarStatusAdocao, exibirNoti
             <p style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>Acompanhe o status dos pets que você demonstrou interesse em adotar pelo Match.</p>
           </div>
           <div className="cards-grid-premium">
-            {adocoesEnviadas.map(a => (
-              <div key={a.id} className="premium-card">
+            {adocoesEnviadas.map(adocao => (
+              <div key={adocao.id} className="premium-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                  <span className={`badge ${corBadge(a.status)}`} style={{ textTransform: 'capitalize' }}>{a.status}</span>
-                  <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{a.time}</span>
+                  <span className={`badge ${corBadge(adocao.status)}`} style={{ textTransform: 'capitalize' }}>{adocao.status}</span>
+                  <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{adocao.time}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                  <img src={a.img} alt={a.petName} style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #f4f5f1' }} />
+                  <img src={adocao.img} alt={adocao.petName} style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #f4f5f1' }} />
                   <div>
-                    <h3 style={{ fontSize: '1.3rem', fontWeight: 700 }}>{a.petName}</h3>
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: 700 }}>{adocao.petName}</h3>
                     <p style={{ color: '#6b7280', fontSize: '0.85rem', marginTop: '2px' }}>
                       ONG Responsável: <strong style={{ color: '#1f3024' }}>{
                         (() => {
-                          const pet = pets.find(p => p.id === (a.petId || a.pet_id));
-                          const nome = a.institutionName || a.instituicao || pet?.instituicao_nome || pet?.owner_name || 'Desconhecida';
+                          const pet = pets.find(petItem => petItem.id === (adocao.petId || adocao.pet_id));
+                          const nome = adocao.institutionName || adocao.instituicao || pet?.instituicao_nome || pet?.owner_name || 'Desconhecida';
                           return nome.charAt(0).toUpperCase() + nome.slice(1);
                         })()
                       }</strong>
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#6b7280', fontSize: '0.9rem', marginTop: '6px' }}>
-                      {a.status === 'pendente' && <><Clock size={16} color="#eab308" /> <span>Aguardando resposta do tutor</span></>}
-                      {a.status === 'aprovada' && <><CheckCircle2 size={16} color="#22c55e" /> <span>Sua adoção foi aprovada!</span></>}
-                      {a.status === 'recusada' && <><XCircle size={16} color="#ef4444" /> <span>Solicitação não aprovada.</span></>}
+                      {adocao.status === 'pendente' && <><Clock size={16} color="#eab308" /> <span>Aguardando resposta do tutor</span></>}
+                      {adocao.status === 'aprovada' && <><CheckCircle2 size={16} color="#22c55e" /> <span>Sua adoção foi aprovada!</span></>}
+                      {adocao.status === 'recusada' && <><XCircle size={16} color="#ef4444" /> <span>Solicitação não aprovada.</span></>}
                     </div>
                   </div>
                 </div>
@@ -90,27 +90,27 @@ const Adocao = ({ adocoes, pets, usuarioAtual, atualizarStatusAdocao, exibirNoti
             <p style={{ color: '#6b7280', fontSize: '0.9rem', lineHeight: 1.5 }}>Gerencie as solicitações de pessoas que desejam adotar seus animais.</p>
           </div>
           <div className="cards-grid-premium">
-            {adocoesRecebidas.map(a => (
-              <div key={a.id} className="premium-card">
+            {adocoesRecebidas.map(adocao => (
+              <div key={adocao.id} className="premium-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
-                  <span className={`badge ${corBadge(a.status)}`} style={{ textTransform: 'capitalize' }}>{a.status}</span>
-                  <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{a.time}</span>
+                  <span className={`badge ${corBadge(adocao.status)}`} style={{ textTransform: 'capitalize' }}>{adocao.status}</span>
+                  <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>{adocao.time}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '24px' }}>
-                  <img src={a.img} alt={a.petName} style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover' }} />
+                  <img src={adocao.img} alt={adocao.petName} style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover' }} />
                   <div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{a.petName}</h3>
-                    <p style={{ color: '#6b7280' }}>Solicitante: {a.applicant}</p>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>{adocao.petName}</h3>
+                    <p style={{ color: '#6b7280' }}>Solicitante: {adocao.applicant}</p>
                   </div>
                 </div>
-                {a.status === 'pendente' && (
+                {adocao.status === 'pendente' && (
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <button className="btn-submit-premium" style={{ height: '48px', marginTop: 0, flex: 1 }}
-                      onClick={() => { atualizarStatusAdocao(a.id, 'aprovada', a.petId || a.pet_id); exibirNotificacao('Adoção aprovada!'); }}>
+                      onClick={() => { atualizarStatusAdocao(adocao.id, 'aprovada', adocao.petId || adocao.pet_id); exibirNotificacao('Adoção aprovada!'); }}>
                       <Check size={18} /> Aprovar
                     </button>
                     <button className="btn-outline-premium" style={{ height: '48px', marginTop: 0, width: '48px', color: '#ef4444', padding: 0 }}
-                      onClick={() => { atualizarStatusAdocao(a.id, 'recusada', a.petId || a.pet_id); exibirNotificacao('Solicitação recusada.', 'erro'); }}>
+                      onClick={() => { atualizarStatusAdocao(adocao.id, 'recusada', adocao.petId || adocao.pet_id); exibirNotificacao('Solicitação recusada.', 'erro'); }}>
                       <X size={18} />
                     </button>
                   </div>

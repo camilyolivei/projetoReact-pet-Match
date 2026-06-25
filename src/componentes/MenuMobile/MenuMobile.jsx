@@ -7,7 +7,7 @@ const MenuMobile = ({ aberto, tela, setTela, aoSair, aoFechar, usuarioAtual }) =
 
   return (
     <div className="mobile-overlay fade-in" onClick={aoFechar}>
-      <div className="mobile-drawer" onClick={e => e.stopPropagation()}>
+      <div className="mobile-drawer" onClick={evento => evento.stopPropagation()}>
         <div className="mobile-drawer-header">
           <div className="brand-logo-topo" style={{ fontSize: '1.3rem' }}>
             <PawPrint size={24} fill="white" strokeWidth={0} />

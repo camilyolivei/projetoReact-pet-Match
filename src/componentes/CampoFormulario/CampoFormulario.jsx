@@ -7,11 +7,14 @@ const CampoFormulario = ({
   placeholder,
   valor,
   aoMudar,
+  aoBlur,
   icone: Icone,
   acaoDireita,
   obrigatorio = false,
   tamanhoMinimo,
   estiloRotulo,
+  erro,
+  name,
 }) => {
   return (
     <div className="campo-wrapper">
@@ -23,11 +26,13 @@ const CampoFormulario = ({
       <div className="campo-grupo">
         {Icone && <Icone className="campo-icone" size={17} />}
         <input
+          name={name}
           type={tipo}
           placeholder={placeholder}
-          className="campo-entrada"
+          className={`campo-entrada ${erro ? 'campo-entrada-erro' : ''}`}
           value={valor}
           onChange={aoMudar}
+          onBlur={aoBlur}
           required={obrigatorio}
           minLength={tamanhoMinimo}
         />
@@ -37,6 +42,7 @@ const CampoFormulario = ({
           </button>
         )}
       </div>
+      {erro && <span className="campo-erro-mensagem">{erro}</span>}
     </div>
   );
 };

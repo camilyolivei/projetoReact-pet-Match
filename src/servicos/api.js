@@ -107,13 +107,13 @@ export const apiPets = {
   listar: async () => {
     try {
       const response = await api.get('/pets');
-      const petsFormatados = response.data.map(p => ({
-        ...p,
-        name: p.name || p.nome || 'Desconhecido',
-        type: p.type || p.especie || 'Desconhecido',
-        age: p.age || p.idade_aproximada || 'Idade desconhecida',
-        desc: p.desc || p.historia || p.descricao_saude || 'Sem descrição',
-        img: p.imagem || p.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800'
+      const petsFormatados = response.data.map(pet => ({
+        ...pet,
+        name: pet.name || pet.nome || 'Desconhecido',
+        type: pet.type || pet.especie || 'Desconhecido',
+        age: pet.age || pet.idade_aproximada || 'Idade desconhecida',
+        desc: pet.desc || pet.historia || pet.descricao_saude || 'Sem descrição',
+        img: pet.imagem || pet.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800'
       }));
       return { ok: true, status: response.status, dados: petsFormatados };
     } catch (error) {
@@ -158,12 +158,12 @@ export const apiAdocoes = {
   listar: async () => {
     try {
       const response = await api.get('/adocoes');
-      const adocoesFormatadas = response.data.map(a => ({
-        ...a,
-        petName: a.petName || a.pet_nome || a.pet?.nome || a.pet?.name || 'Desconhecido',
-        img: a.img || a.pet_imagem || a.pet?.imagem || a.pet?.img || '',
-        applicant: a.applicant || a.usuario_nome || a.usuario?.nome || a.usuario?.name || 'Desconhecido',
-        time: a.time || (a.data_criacao ? new Date(a.data_criacao).toLocaleDateString('pt-BR') : 'Data não informada'),
+      const adocoesFormatadas = response.data.map(adocao => ({
+        ...adocao,
+        petName: adocao.petName || adocao.pet_nome || adocao.pet?.nome || adocao.pet?.name || 'Desconhecido',
+        img: adocao.img || adocao.pet_imagem || adocao.pet?.imagem || adocao.pet?.img || '',
+        applicant: adocao.applicant || adocao.usuario_nome || adocao.usuario?.nome || adocao.usuario?.name || 'Desconhecido',
+        time: adocao.time || (adocao.data_criacao ? new Date(adocao.data_criacao).toLocaleDateString('pt-BR') : 'Data não informada'),
       }));
       return { ok: true, status: response.status, dados: adocoesFormatadas };
     } catch (error) {
@@ -205,12 +205,12 @@ export const apiAdocoes = {
   porUsuario: async (usuarioId) => {
     try {
       const response = await api.get(`/adocoes/usuario/${usuarioId}`);
-      const adocoesFormatadas = response.data.map(a => ({
-        ...a,
+      const adocoesFormatadas = response.data.map(adocao => ({
+        ...adocao,
         usuario_id: usuarioId,
-        petName: a.petName || 'Pet',
-        img: a.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800',
-        time: a.requestDate ? new Date(a.requestDate).toLocaleDateString('pt-BR') : 'Recente'
+        petName: adocao.petName || 'Pet',
+        img: adocao.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800',
+        time: adocao.requestDate ? new Date(adocao.requestDate).toLocaleDateString('pt-BR') : 'Recente'
       }));
       return { ok: true, status: response.status, dados: adocoesFormatadas };
     } catch (error) {
@@ -220,11 +220,11 @@ export const apiAdocoes = {
   porInstituicao: async (instituicaoId) => {
     try {
       const response = await api.get(`/adocoes/instituicao/${instituicaoId}`);
-      const adocoesFormatadas = response.data.map(a => ({
-        ...a,
-        petName: a.petName || 'Pet',
-        img: a.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800',
-        time: a.requestDate ? new Date(a.requestDate).toLocaleDateString('pt-BR') : 'Recente'
+      const adocoesFormatadas = response.data.map(adocao => ({
+        ...adocao,
+        petName: adocao.petName || 'Pet',
+        img: adocao.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800',
+        time: adocao.requestDate ? new Date(adocao.requestDate).toLocaleDateString('pt-BR') : 'Recente'
       }));
       return { ok: true, status: response.status, dados: adocoesFormatadas };
     } catch (error) {
@@ -237,13 +237,13 @@ export const apiMatches = {
   discover: async (usuarioId) => {
     try {
       const response = await api.get(`/matches/discover/pets?usuario_id=${usuarioId}`);
-      const petsFormatados = response.data.map(p => ({
-        ...p,
-        name: p.nome || p.name || 'Desconhecido',
-        type: p.especie || p.type || 'Desconhecido',
-        age: p.age || p.idade_aproximada || 'Idade desconhecida',
-        desc: p.desc || p.historia || p.descricao_saude || 'Sem descrição',
-        img: p.imagem || p.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800'
+      const petsFormatados = response.data.map(pet => ({
+        ...pet,
+        name: pet.nome || pet.name || 'Desconhecido',
+        type: pet.especie || pet.type || 'Desconhecido',
+        age: pet.age || pet.idade_aproximada || 'Idade desconhecida',
+        desc: pet.desc || pet.historia || pet.descricao_saude || 'Sem descrição',
+        img: pet.imagem || pet.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800'
       }));
       return { ok: true, status: response.status, dados: petsFormatados };
     } catch (error) {

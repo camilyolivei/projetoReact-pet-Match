@@ -1,35 +1,63 @@
 import React, { useState } from 'react';
 import { Camera, ChevronRight } from 'lucide-react';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina/CabecalhoPagina.jsx';
+import CampoFormulario from '../../componentes/CampoFormulario/CampoFormulario.jsx';
+import { useForm, VALIDADORES_REGEX } from '../../hooks/useForm.js';
+
+const regrasValidacaoPet = {
+  name: {
+    required: true,
+    mensagemErroObrigatorio: 'O nome do pet é obrigatório.',
+    regex: VALIDADORES_REGEX.letrasEAcentos,
+    mensagemErroRegex: 'O nome deve conter apenas letras.'
+  },
+  type: {
+    required: true,
+    mensagemErroObrigatorio: 'A espécie / raça é obrigatória.',
+    regex: VALIDADORES_REGEX.letrasEAcentos,
+    mensagemErroRegex: 'A espécie / raça deve conter apenas letras.'
+  },
+  age: {
+    required: true,
+    mensagemErroObrigatorio: 'A idade aproximada é obrigatória.'
+  },
+  cor: {
+    required: true,
+    mensagemErroObrigatorio: 'A cor é obrigatória.',
+    regex: VALIDADORES_REGEX.letrasEAcentos,
+    mensagemErroRegex: 'A cor deve conter apenas letras.'
+  },
+  desc: {
+    required: false
+  }
+};
 
 const FormularioPet = ({ petEditando, setPetEditando, usuarioAtual, setTela, adicionarPet, atualizarPet, exibirNotificacao }) => {
-  const [dados, setDados] = useState(
-    petEditando || { name: '', type: '', age: '', desc: '', cor: '', vacinado: true, castrado: true, img: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800' }
-  );
   const [salvando, setSalvando] = useState(false);
 
-  const aoEnviar = async (e) => {
-    e.preventDefault();
-    if (!dados.name || !dados.type) return exibirNotificacao('Preencha os campos obrigatórios!', 'erro');
-    setSalvando(true);
-    if (petEditando) {
-      await atualizarPet(petEditando.id, dados);
-      exibirNotificacao(`${dados.name} atualizado com sucesso!`);
-    } else {
-      await adicionarPet({ ...dados, owner_id: usuarioAtual.instituicao_id || usuarioAtual.id });
-      exibirNotificacao(`${dados.name} cadastrado com sucesso!`);
+  const {
+    valores: dados,
+    erros,
+    handleChange,
+    handleBlur,
+    handleSubmit: aoEnviar,
+    setValores: setDados
+  } = useForm(
+    petEditando || { name: '', type: '', age: '', desc: '', cor: '', vacinado: true, castrado: true, img: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800' },
+    regrasValidacaoPet,
+    async (valoresFormulario) => {
+      setSalvando(true);
+      if (petEditando) {
+        await atualizarPet(petEditando.id, valoresFormulario);
+        exibirNotificacao(`${valoresFormulario.name} atualizado com sucesso!`);
+      } else {
+        await adicionarPet({ ...valoresFormulario, owner_id: usuarioAtual.instituicao_id || usuarioAtual.id });
+        exibirNotificacao(`${valoresFormulario.name} cadastrado com sucesso!`);
+      }
+      setSalvando(false);
+      setPetEditando(null);
+      setTela('pets');
     }
-    setSalvando(false);
-    setPetEditando(null);
-    setTela('pets');
-  };
-
-  const campo = (rotulo, chave, placeholder) => (
-    <div className="campo-wrapper">
-      <label className="campo-rotulo">{rotulo}</label>
-      <input className="campo-entrada" style={{ padding: '0 24px' }} placeholder={placeholder}
-        value={dados[chave]} onChange={e => setDados({ ...dados, [chave]: e.target.value })} />
-    </div>
   );
 
   return (
@@ -53,26 +81,34 @@ const FormularioPet = ({ petEditando, setPetEditando, usuarioAtual, setTela, adi
 
         <form onSubmit={aoEnviar}>
           <div className="form-grid-premium">
-            {campo('Nome do Pet', 'name', 'Ex: Rex')}
-            {campo('Espécie / Raça', 'type', 'Ex: Golden Retriever')}
+            <CampoFormulario name="name" rotulo="Nome do Pet" placeholder="Ex: Rex" valor={dados.name} aoMudar={handleChange} aoBlur={handleBlur} erro={erros.name} obrigatorio />
+            <CampoFormulario name="type" rotulo="Espécie / Raça" placeholder="Ex: Golden Retriever" valor={dados.type} aoMudar={handleChange} aoBlur={handleBlur} erro={erros.type} obrigatorio />
           </div>
           <div className="form-grid-premium">
-            {campo('Idade', 'age', 'Ex: 2 anos')}
-            {campo('Cor', 'cor', 'Ex: Caramelo')}
+            <CampoFormulario name="age" rotulo="Idade" placeholder="Ex: 2 anos" valor={dados.age} aoMudar={handleChange} aoBlur={handleBlur} erro={erros.age} obrigatorio />
+            <CampoFormulario name="cor" rotulo="Cor" placeholder="Ex: Caramelo" valor={dados.cor} aoMudar={handleChange} aoBlur={handleBlur} erro={erros.cor} obrigatorio />
           </div>
           <div className="campo-wrapper" style={{ marginTop: '16px' }}>
             <label className="campo-rotulo">Sobre ele</label>
-            <textarea className="campo-entrada" style={{ padding: '20px 24px', height: '120px', resize: 'none' }}
+            <textarea 
+              name="desc"
+              className={`campo-entrada ${erros.desc ? 'campo-entrada-erro' : ''}`} 
+              style={{ padding: '20px 24px', height: '120px', resize: 'none' }}
               placeholder="Conte um pouco sobre a personalidade..."
-              value={dados.desc} onChange={e => setDados({ ...dados, desc: e.target.value })} />
+              value={dados.desc} 
+              onChange={handleChange}
+              onBlur={handleBlur}
+            />
+            {erros.desc && <span className="campo-erro-mensagem">{erros.desc}</span>}
           </div>
           <div style={{ display: 'flex', gap: '24px', marginTop: '16px', marginBottom: '24px', background: 'rgba(209,107,71,0.05)', padding: '16px', borderRadius: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <input 
                 type="checkbox" 
                 id="vacinado" 
+                name="vacinado"
                 checked={dados.vacinado} 
-                onChange={e => setDados({ ...dados, vacinado: e.target.checked })}
+                onChange={handleChange}
                 style={{ width: '18px', height: '18px', accentColor: '#d16b47', cursor: 'pointer' }}
               />
               <label htmlFor="vacinado" style={{ cursor: 'pointer', fontWeight: 600, color: '#1f3024' }}>Pet Vacinado</label>
@@ -81,8 +117,9 @@ const FormularioPet = ({ petEditando, setPetEditando, usuarioAtual, setTela, adi
               <input 
                 type="checkbox" 
                 id="castrado" 
+                name="castrado"
                 checked={dados.castrado} 
-                onChange={e => setDados({ ...dados, castrado: e.target.checked })}
+                onChange={handleChange}
                 style={{ width: '18px', height: '18px', accentColor: '#d16b47', cursor: 'pointer' }}
               />
               <label htmlFor="castrado" style={{ cursor: 'pointer', fontWeight: 600, color: '#1f3024' }}>Pet Castrado</label>

@@ -19,8 +19,8 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
 
   useEffect(() => {
     if (usuarioAtual) {
-      setDadosEdicao(d => ({
-        ...d,
+      setDadosEdicao(dadosPerfil => ({
+        ...dadosPerfil,
         name: usuarioAtual.name || '',
         email: usuarioAtual.email || '',
         telefone: usuarioAtual.telefone || '',
@@ -40,8 +40,8 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
             });
             if (res.ok) {
               const end = await res.json();
-              setDadosEdicao(prev => ({
-                ...prev,
+              setDadosEdicao(dadosAnteriores => ({
+                ...dadosAnteriores,
                 rua: end.rua || '', numero: end.numero || '', complemento: end.complemento || '',
                 bairro: end.bairro || '', cidade: end.cidade || '', estado: end.estado || '', cep: end.cep || ''
               }));
@@ -52,8 +52,8 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
         buscarEndereco();
       } else if (usuarioAtual.endereco && typeof usuarioAtual.endereco === 'object') {
         const end = usuarioAtual.endereco;
-        setDadosEdicao(prev => ({
-          ...prev,
+        setDadosEdicao(dadosAnteriores => ({
+          ...dadosAnteriores,
           rua: end.rua || '', numero: end.numero || '', complemento: end.complemento || '',
           bairro: end.bairro || '', cidade: end.cidade || '', estado: end.estado || '', cep: end.cep || ''
         }));
@@ -63,12 +63,12 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
   }, [usuarioAtual]);
 
   // Troca de foto usando label + input (sem useRef)
-  const aoTrocarFoto = (e) => {
-    const arquivo = e.target.files?.[0];
+  const aoTrocarFoto = (evento) => {
+    const arquivo = evento.target.files?.[0];
     if (!arquivo) return;
     if (arquivo.size > 5 * 1024 * 1024) return exibirNotificacao('Imagem muito grande. Máximo 5MB.', 'erro');
     const leitor = new FileReader();
-    leitor.onload = (ev) => setDadosEdicao(d => ({ ...d, avatar: ev.target.result }));
+    leitor.onload = (eventoLeitor) => setDadosEdicao(dadosAnteriores => ({ ...dadosAnteriores, avatar: eventoLeitor.target.result }));
     leitor.readAsDataURL(arquivo);
   };
 
@@ -164,8 +164,8 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
                     excluirPerfil();
                   }
                 }}
-                onMouseOver={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.borderColor = '#ef4444'; }}
-                onMouseOut={e => { e.currentTarget.style.background = 'rgba(239,68,68,0.05)'; e.currentTarget.style.borderColor = '#fca5a5'; }}
+                onMouseOver={evento => { evento.currentTarget.style.background = '#fee2e2'; evento.currentTarget.style.borderColor = '#ef4444'; }}
+                onMouseOut={evento => { evento.currentTarget.style.background = 'rgba(239,68,68,0.05)'; evento.currentTarget.style.borderColor = '#fca5a5'; }}
               >
                 <Trash2 size={16} /> Excluir Conta
               </button>
@@ -182,7 +182,7 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
               <div className="campo-wrapper" key={chave}>
                 <label className="campo-rotulo">{rotulo}</label>
                 <input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao[chave]}
-                  onChange={e => setDadosEdicao({ ...dadosEdicao, [chave]: e.target.value })} />
+                  onChange={evento => setDadosEdicao({ ...dadosEdicao, [chave]: evento.target.value })} />
               </div>
             ))}
 
@@ -193,31 +193,31 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
                   <div className="campo-wrapper" key={chave}>
                     <label className="campo-rotulo">{rotulo}</label>
                     <input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao[chave]}
-                      onChange={e => setDadosEdicao({ ...dadosEdicao, [chave]: e.target.value })} />
+                      onChange={evento => setDadosEdicao({ ...dadosEdicao, [chave]: evento.target.value })} />
                   </div>
                 ))}
                 <div className="campo-wrapper">
                   <label className="campo-rotulo">Descrição da ONG</label>
                   <textarea className="campo-entrada" style={{ padding: '16px 24px', height: '100px', resize: 'none' }} value={dadosEdicao.descricao}
-                    onChange={e => setDadosEdicao({ ...dadosEdicao, descricao: e.target.value })} />
+                    onChange={evento => setDadosEdicao({ ...dadosEdicao, descricao: evento.target.value })} />
                 </div>
               </>
             )}
 
             <h4 style={{ marginTop: '32px', marginBottom: '16px', fontSize: '1.1rem', fontWeight: 600, color: '#1f3024' }}>Endereço Completo</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div className="campo-wrapper"><label className="campo-rotulo">CEP</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.cep} onChange={e => setDadosEdicao({ ...dadosEdicao, cep: e.target.value })} /></div>
-                  <div className="campo-wrapper"><label className="campo-rotulo">Estado (UF)</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.estado} onChange={e => setDadosEdicao({ ...dadosEdicao, estado: e.target.value })} /></div>
+                  <div className="campo-wrapper"><label className="campo-rotulo">CEP</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.cep} onChange={evento => setDadosEdicao({ ...dadosEdicao, cep: evento.target.value })} /></div>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Estado (UF)</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.estado} onChange={evento => setDadosEdicao({ ...dadosEdicao, estado: evento.target.value })} /></div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                  <div className="campo-wrapper"><label className="campo-rotulo">Cidade</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.cidade} onChange={e => setDadosEdicao({ ...dadosEdicao, cidade: e.target.value })} /></div>
-                  <div className="campo-wrapper"><label className="campo-rotulo">Bairro</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.bairro} onChange={e => setDadosEdicao({ ...dadosEdicao, bairro: e.target.value })} /></div>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Cidade</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.cidade} onChange={evento => setDadosEdicao({ ...dadosEdicao, cidade: evento.target.value })} /></div>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Bairro</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.bairro} onChange={evento => setDadosEdicao({ ...dadosEdicao, bairro: evento.target.value })} /></div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
-                  <div className="campo-wrapper"><label className="campo-rotulo">Rua/Avenida</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.rua} onChange={e => setDadosEdicao({ ...dadosEdicao, rua: e.target.value })} /></div>
-                  <div className="campo-wrapper"><label className="campo-rotulo">Número</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.numero} onChange={e => setDadosEdicao({ ...dadosEdicao, numero: e.target.value })} /></div>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Rua/Avenida</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.rua} onChange={evento => setDadosEdicao({ ...dadosEdicao, rua: evento.target.value })} /></div>
+                  <div className="campo-wrapper"><label className="campo-rotulo">Número</label><input className="campo-entrada" style={{ padding: '0 20px' }} value={dadosEdicao.numero} onChange={evento => setDadosEdicao({ ...dadosEdicao, numero: evento.target.value })} /></div>
                 </div>
-                <div className="campo-wrapper"><label className="campo-rotulo">Complemento</label><input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao.complemento} onChange={e => setDadosEdicao({ ...dadosEdicao, complemento: e.target.value })} /></div>
+                <div className="campo-wrapper"><label className="campo-rotulo">Complemento</label><input className="campo-entrada" style={{ padding: '0 24px' }} value={dadosEdicao.complemento} onChange={evento => setDadosEdicao({ ...dadosEdicao, complemento: evento.target.value })} /></div>
             <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
               <button className="btn-submit-premium" style={{ marginTop: 0 }} onClick={aoSalvar}><Save size={16} /> Salvar</button>
               <button className="btn-outline-premium" style={{ marginTop: 0 }} onClick={() => setEditando(false)}>Cancelar</button>

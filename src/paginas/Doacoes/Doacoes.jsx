@@ -2,32 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { Gift, ChevronDown } from 'lucide-react';
 import { apiInstituicoes } from '../../servicos/api.js';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina/CabecalhoPagina.jsx';
+import { useForm, VALIDADORES_REGEX } from '../../hooks/useForm.js';
+
+const regrasValidacaoDoacao = {
+  quantidade: {
+    required: true,
+    mensagemErroObrigatorio: 'A quantidade/valor é obrigatória.',
+    regex: VALIDADORES_REGEX.precoOuQuantidade,
+    mensagemErroRegex: 'Por favor, insira um valor válido (ex: 50.00).'
+  },
+  tipo: {
+    required: true
+  },
+  instituicaoSelecionada: {
+    required: true,
+    mensagemErroObrigatorio: 'A ONG destino é obrigatória.'
+  }
+};
 
 const Doacoes = ({ setTela, usuarioAtual, fazerDoacao, exibirNotificacao }) => {
-  const [quantidade, setQuantidade] = useState('');
-  const [tipo, setTipo] = useState('dinheiro');
   const [instituicoes, setInstituicoes] = useState([]);
-  const [instituicaoSelecionada, setInstituicaoSelecionada] = useState('');
   const [processando, setProcessando] = useState(false);
 
-  useEffect(() => {
-    async function carregarInstituicoes() {
-      const resposta = await apiInstituicoes.listar();
-      if (resposta.ok && Array.isArray(resposta.dados)) {
-        setInstituicoes(resposta.dados);
-        if (resposta.dados.length > 0) {
-          setInstituicaoSelecionada(resposta.dados[0].id.toString());
-        }
-      }
-    }
-    carregarInstituicoes();
-  }, []);
-
-  const aoEnviar = async (e) => {
-    e.preventDefault();
-    const valor = parseFloat(quantidade);
+  const {
+    valores: dadosDoacao,
+    erros: errosDoacao,
+    handleChange: aoMudarDoacao,
+    handleBlur: aoBlurDoacao,
+    handleSubmit: aoEnviar,
+    setValores: setDadosDoacao
+  } = useForm({ quantidade: '', tipo: 'dinheiro', instituicaoSelecionada: '' }, regrasValidacaoDoacao, async (valoresFormulario) => {
+    const valor = parseFloat(valoresFormulario.quantidade);
     if (!valor || valor <= 0) return exibirNotificacao('Insira uma quantidade válida.', 'erro');
-    if (!instituicaoSelecionada) return exibirNotificacao('Selecione uma ONG.', 'erro');
+    if (!valoresFormulario.instituicaoSelecionada) return exibirNotificacao('Selecione uma ONG.', 'erro');
     
     setProcessando(true);
     
@@ -36,17 +43,29 @@ const Doacoes = ({ setTela, usuarioAtual, fazerDoacao, exibirNotificacao }) => {
     
     await fazerDoacao({ 
       usuario_id: usuarioAtual.id, 
-      instituicao_id: Number(instituicaoSelecionada), 
-      tipo_doacao_id: mapTipos[tipo], 
+      instituicao_id: Number(valoresFormulario.instituicaoSelecionada), 
+      tipo_doacao_id: mapTipos[valoresFormulario.tipo], 
       quantidade: valor, 
       status_entrega: 'pendente' 
     });
     
     setProcessando(false);
-    exibirNotificacao(`Sua doação de ${tipo} foi computada com sucesso! ♥`);
-    setQuantidade('');
+    exibirNotificacao(`Sua doação de ${valoresFormulario.tipo} foi computada com sucesso! ♥`);
     setTela('painel');
-  };
+  });
+
+  useEffect(() => {
+    async function carregarInstituicoes() {
+      const resposta = await apiInstituicoes.listar();
+      if (resposta.ok && Array.isArray(resposta.dados)) {
+        setInstituicoes(resposta.dados);
+        if (resposta.dados.length > 0) {
+          setDadosDoacao(dados => ({ ...dados, instituicaoSelecionada: resposta.dados[0].id.toString() }));
+        }
+      }
+    }
+    carregarInstituicoes();
+  }, [setDadosDoacao]);
 
   return (
     <div className="fade-in">
@@ -70,9 +89,11 @@ const Doacoes = ({ setTela, usuarioAtual, fazerDoacao, exibirNotificacao }) => {
             </label>
             <div className="campo-wrapper" style={{ position: 'relative' }}>
               <select 
-                className="campo-entrada" 
-                value={instituicaoSelecionada} 
-                onChange={e => setInstituicaoSelecionada(e.target.value)}
+                name="instituicaoSelecionada"
+                className={`campo-entrada ${errosDoacao.instituicaoSelecionada ? 'campo-entrada-erro' : ''}`} 
+                value={dadosDoacao.instituicaoSelecionada} 
+                onChange={aoMudarDoacao}
+                onBlur={aoBlurDoacao}
                 style={{ appearance: 'none', cursor: 'pointer', paddingRight: '40px', paddingLeft: '16px' }}
                 required
               >
@@ -83,6 +104,7 @@ const Doacoes = ({ setTela, usuarioAtual, fazerDoacao, exibirNotificacao }) => {
               </select>
               <ChevronDown size={18} color="#6b7280" style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
             </div>
+            {errosDoacao.instituicaoSelecionada && <span className="campo-erro-mensagem">{errosDoacao.instituicaoSelecionada}</span>}
           </div>
 
           <div style={{ marginBottom: '20px' }}>
@@ -91,9 +113,11 @@ const Doacoes = ({ setTela, usuarioAtual, fazerDoacao, exibirNotificacao }) => {
             </label>
             <div className="campo-wrapper" style={{ position: 'relative' }}>
               <select 
+                name="tipo"
                 className="campo-entrada" 
-                value={tipo} 
-                onChange={e => setTipo(e.target.value)}
+                value={dadosDoacao.tipo} 
+                onChange={aoMudarDoacao}
+                onBlur={aoBlurDoacao}
                 style={{ appearance: 'none', cursor: 'pointer', paddingRight: '40px', paddingLeft: '16px' }}
               >
                 <option value="dinheiro">Dinheiro (R$)</option>
@@ -111,14 +135,17 @@ const Doacoes = ({ setTela, usuarioAtual, fazerDoacao, exibirNotificacao }) => {
             </label>
             <div className="campo-wrapper">
               <input 
-                className="campo-entrada" 
+                name="quantidade"
+                className={`campo-entrada ${errosDoacao.quantidade ? 'campo-entrada-erro' : ''}`} 
                 style={{ paddingLeft: '16px' }}
-                placeholder={tipo === 'dinheiro' ? "Ex: 50.00" : "Digite a quantidade"} 
-                value={quantidade} 
-                onChange={e => setQuantidade(e.target.value)}
+                placeholder={dadosDoacao.tipo === 'dinheiro' ? "Ex: 50.00" : "Digite a quantidade"} 
+                value={dadosDoacao.quantidade} 
+                onChange={aoMudarDoacao}
+                onBlur={aoBlurDoacao}
                 type="number" step="0.01" min="0.01" required 
               />
             </div>
+            {errosDoacao.quantidade && <span className="campo-erro-mensagem">{errosDoacao.quantidade}</span>}
           </div>
 
           <button type="submit" className="btn-submit-premium" style={{ width: '100%', padding: '16px', fontSize: '1.1rem', borderRadius: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }} disabled={processando}>

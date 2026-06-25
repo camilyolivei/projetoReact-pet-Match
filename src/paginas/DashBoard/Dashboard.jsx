@@ -38,19 +38,19 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
   }, [resgatesResolvidos]);
 
   const marcarComoResolvido = (id) => {
-    setResgatesResolvidos(prev => [...prev, id]);
+    setResgatesResolvidos(resgatesResolvidosAnteriores => [...resgatesResolvidosAnteriores, id]);
   };
 
-  const adocoesConcluidas = adocoes.filter(a => a.status === 'aprovada').length;
-  const petsDisponiveis = pets.filter(p => p.ativo).length;
+  const adocoesConcluidas = adocoes.filter(adocao => adocao.status === 'aprovada').length;
+  const petsDisponiveis = pets.filter(pet => pet.ativo).length;
   
-  const resgatesAtivos = resgates.filter(r => !resgatesResolvidos.includes(r.id));
+  const resgatesAtivos = resgates.filter(resgate => !resgatesResolvidos.includes(resgate.id));
 
   // Soma de doações por categoria (A API retorna tipoDoacaoId com camelCase, mas o envio local utiliza tipo_doacao_id)
-  const doacoesDinheiro = doacoes.filter(d => (d.tipoDoacaoId || d.tipo_doacao_id) === 1).reduce((acc, curr) => acc + (parseFloat(curr.quantidade) || 0), 0);
-  const doacoesRacao = doacoes.filter(d => (d.tipoDoacaoId || d.tipo_doacao_id) === 2).reduce((acc, curr) => acc + (parseFloat(curr.quantidade) || 0), 0);
-  const doacoesRemedio = doacoes.filter(d => (d.tipoDoacaoId || d.tipo_doacao_id) === 3).reduce((acc, curr) => acc + (parseFloat(curr.quantidade) || 0), 0);
-  const doacoesBrinquedo = doacoes.filter(d => (d.tipoDoacaoId || d.tipo_doacao_id) === 4).reduce((acc, curr) => acc + (parseFloat(curr.quantidade) || 0), 0);
+  const doacoesDinheiro = doacoes.filter(doacao => (doacao.tipoDoacaoId || doacao.tipo_doacao_id) === 1).reduce((acumulador, doacaoAtual) => acumulador + (parseFloat(doacaoAtual.quantidade) || 0), 0);
+  const doacoesRacao = doacoes.filter(doacao => (doacao.tipoDoacaoId || doacao.tipo_doacao_id) === 2).reduce((acumulador, doacaoAtual) => acumulador + (parseFloat(doacaoAtual.quantidade) || 0), 0);
+  const doacoesRemedio = doacoes.filter(doacao => (doacao.tipoDoacaoId || doacao.tipo_doacao_id) === 3).reduce((acumulador, doacaoAtual) => acumulador + (parseFloat(doacaoAtual.quantidade) || 0), 0);
+  const doacoesBrinquedo = doacoes.filter(doacao => (doacao.tipoDoacaoId || doacao.tipo_doacao_id) === 4).reduce((acumulador, doacaoAtual) => acumulador + (parseFloat(doacaoAtual.quantidade) || 0), 0);
 
   const stats = [
     { label: 'Pets Disponíveis',     value: petsDisponiveis,                      icon: <PawPrint size={20} />, color: '#d16b47', bg: '#fdf4f0' },
@@ -63,14 +63,14 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
       <CabecalhoPagina titulo="Bem-vindo de volta!" subtitulo="Aqui está o resumo da sua plataforma PetMatch." />
 
       <div className="stats-grid">
-        {stats.map((stat, i) => (
-          <div key={i} className="stat-card-premium" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{ background: stat.bg, color: stat.color, padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {stat.icon}
+        {stats.map((estatistica, indice) => (
+          <div key={indice} className="stat-card-premium" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ background: estatistica.bg, color: estatistica.color, padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {estatistica.icon}
             </div>
             <div>
-              <p style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{stat.label}</p>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginTop: '2px' }}>{stat.value}</h3>
+              <p style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{estatistica.label}</p>
+              <h3 style={{ fontSize: '1.4rem', fontWeight: 700, marginTop: '2px' }}>{estatistica.value}</h3>
             </div>
           </div>
         ))}
@@ -119,25 +119,25 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
             <button className="btn-texto" onClick={() => setView('adoption')}>Ver todas</button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {adocoes.slice(0, 4).map(ado => {
-              const petEncontrado = pets.find(p => p.id === (ado.petId || ado.pet_id));
+            {adocoes.slice(0, 4).map(adocao => {
+              const petEncontrado = pets.find(pet => pet.id === (adocao.petId || adocao.pet_id));
               return (
-              <div key={ado.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: '16px', background: '#f9fafb' }}>
-                <img src={ado.img || petEncontrado?.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800'} alt={ado.petName || petEncontrado?.name} style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }} />
+              <div key={adocao.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px', borderRadius: '16px', background: '#f9fafb' }}>
+                <img src={adocao.img || petEncontrado?.img || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800'} alt={adocao.petName || petEncontrado?.name} style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover' }} />
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontWeight: 700 }}>{ado.petName || petEncontrado?.name || 'Pet'}</p>
+                  <p style={{ fontWeight: 700 }}>{adocao.petName || petEncontrado?.name || 'Pet'}</p>
                   <p style={{ fontSize: '0.9rem', color: '#6b7280' }}>
                     {usuarioAtual?.isOng 
-                      ? `Solicitado por ${ado.applicant || ado.usuario_nome || 'Usuário'}`
-                      : `ONG Responsável: ${(ado.institutionName || ado.instituicao || petEncontrado?.instituicao_nome || petEncontrado?.owner_name || 'Desconhecida').charAt(0).toUpperCase() + (ado.institutionName || ado.instituicao || petEncontrado?.instituicao_nome || petEncontrado?.owner_name || 'Desconhecida').slice(1)}`
+                      ? `Solicitado por ${adocao.applicant || adocao.usuario_nome || 'Usuário'}`
+                      : `ONG Responsável: ${(adocao.institutionName || adocao.instituicao || petEncontrado?.instituicao_nome || petEncontrado?.owner_name || 'Desconhecida').charAt(0).toUpperCase() + (adocao.institutionName || adocao.instituicao || petEncontrado?.instituicao_nome || petEncontrado?.owner_name || 'Desconhecida').slice(1)}`
                     }
                   </p>
                 </div>
                 <span
-                  className={`badge ${ado.status === 'aprovada' ? 'verde' : ado.status === 'recusada' ? 'cinza' : 'laranja'}`}
+                  className={`badge ${adocao.status === 'aprovada' ? 'verde' : adocao.status === 'recusada' ? 'cinza' : 'laranja'}`}
                   style={{ textTransform: 'capitalize' }}
                 >
-                  {ado.status}
+                  {adocao.status}
                 </span>
               </div>
             )})}
@@ -155,12 +155,12 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
             <button className="btn-texto" style={{ color: 'white', opacity: 0.8 }} onClick={() => setModalResgateAberto(true)}>Ver Todos</button>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {resgatesAtivos.slice(0, 2).map(res => {
-              const partes = res.descricao ? res.descricao.split('|') : [];
-              const descricaoExibicao = partes[0] ? partes[0].trim() : res.descricao;
-              const localizacaoExibicao = partes[1] ? partes[1].replace('Local:', '').trim() : res.localizacao;
+            {resgatesAtivos.slice(0, 2).map(resgate => {
+              const partes = resgate.descricao ? resgate.descricao.split('|') : [];
+              const descricaoExibicao = partes[0] ? partes[0].trim() : resgate.descricao;
+              const localizacaoExibicao = partes[1] ? partes[1].replace('Local:', '').trim() : resgate.localizacao;
               return (
-              <div key={res.id} style={{ padding: '20px', borderRadius: '20px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div key={resgate.id} style={{ padding: '20px', borderRadius: '20px', background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Descrição da Situação:</p>
                 <p style={{ fontWeight: 700, marginBottom: '12px' }}>{descricaoExibicao}</p>
                 <p style={{ fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Localização Exata:</p>
@@ -168,7 +168,7 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
                   <MapPin size={14} /> {localizacaoExibicao}
                 </p>
                 <button 
-                  onClick={() => marcarComoResolvido(res.id)}
+                  onClick={() => marcarComoResolvido(resgate.id)}
                   style={{ 
                     background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', 
                     padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem', cursor: 'pointer',
@@ -195,7 +195,7 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
 
       {modalResgateAberto && createPortal(
         <div 
-          onClick={(e) => { if (e.target === e.currentTarget) setModalResgateAberto(false); }}
+          onClick={(evento) => { if (evento.target === evento.currentTarget) setModalResgateAberto(false); }}
           style={{
             position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
             background: 'rgba(0,0,0,0.6)', zIndex: 99999, display: 'flex', 
@@ -220,16 +220,16 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
               <p style={{ color: '#6b7280', textAlign: 'center', padding: '40px 0' }}>Nenhum histórico de resgate reportado.</p>
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-                {resgates.map(res => {
-                  const estaResolvido = resgatesResolvidos.includes(res.id);
-                  const partes = res.descricao ? res.descricao.split('|') : [];
-                  const descricaoExibicao = partes[0] ? partes[0].trim() : res.descricao;
-                  const localizacaoExibicao = partes[1] ? partes[1].replace('Local:', '').trim() : res.localizacao;
+                {resgates.map(resgate => {
+                  const estaResolvido = resgatesResolvidos.includes(resgate.id);
+                  const partes = resgate.descricao ? resgate.descricao.split('|') : [];
+                  const descricaoExibicao = partes[0] ? partes[0].trim() : resgate.descricao;
+                  const localizacaoExibicao = partes[1] ? partes[1].replace('Local:', '').trim() : resgate.localizacao;
                   return (
-                  <div key={res.id} style={{ 
+                  <div key={resgate.id} style={{ 
                     padding: '24px', borderRadius: '20px', border: '1px solid',
                     borderColor: estaResolvido ? '#d1fae5' : '#e5e7eb',
-                    borderLeft: estaResolvido ? '6px solid #10b981' : (res.status === 'urgente' ? '6px solid #ef4444' : '6px solid #eab308'),
+                    borderLeft: estaResolvido ? '6px solid #10b981' : (resgate.status === 'urgente' ? '6px solid #ef4444' : '6px solid #eab308'),
                     background: estaResolvido ? 'linear-gradient(145deg, #f0fdf4 0%, #ffffff 100%)' : '#ffffff',
                     opacity: estaResolvido ? 0.85 : 1,
                     boxShadow: estaResolvido ? 'none' : '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
@@ -237,20 +237,20 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span className={`badge ${estaResolvido ? 'verde' : (res.status === 'urgente' ? 'laranja' : 'azul')}`} style={{ textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px' }}>
-                          {estaResolvido && <Check size={14} />} {estaResolvido ? 'Resolvido' : res.status}
+                        <span className={`badge ${estaResolvido ? 'verde' : (resgate.status === 'urgente' ? 'laranja' : 'azul')}`} style={{ textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px' }}>
+                          {estaResolvido && <Check size={14} />} {estaResolvido ? 'Resolvido' : resgate.status}
                         </span>
-                        {JSON.parse(localStorage.getItem('petmatch_meus_resgates') || '[]').includes(res.id) && (
+                        {JSON.parse(localStorage.getItem('petmatch_meus_resgates') || '[]').includes(resgate.id) && (
                           <div style={{ display: 'flex', gap: '4px' }}>
                             <button 
-                              onClick={() => iniciarEdicao(res, descricaoExibicao, localizacaoExibicao)}
+                              onClick={() => iniciarEdicao(resgate, descricaoExibicao, localizacaoExibicao)}
                               style={{ background: 'transparent', border: 'none', color: '#3b82f6', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
                               title="Editar minha solicitação"
                             >
                               <Edit2 size={16} />
                             </button>
                             <button 
-                              onClick={() => excluirResgate && excluirResgate(res.id)}
+                              onClick={() => excluirResgate && excluirResgate(resgate.id)}
                               style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }}
                               title="Excluir minha solicitação"
                             >
@@ -260,20 +260,20 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
                         )}
                       </div>
                       <span style={{ fontSize: '0.8rem', color: '#9ca3af', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}>
-                        <Clock size={14} /> {res.data ? new Date(res.data).toLocaleDateString('pt-BR') : 'Recente'}
+                        <Clock size={14} /> {resgate.data ? new Date(resgate.data).toLocaleDateString('pt-BR') : 'Recente'}
                       </span>
                     </div>
-                    {editandoResgate === res.id ? (
+                    {editandoResgate === resgate.id ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '8px 0' }} className="fade-in">
                         <input 
                           value={editDesc} 
-                          onChange={e => setEditDesc(e.target.value)} 
+                          onChange={evento => setEditDesc(evento.target.value)} 
                           style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '0.95rem' }} 
                           placeholder="Descrição" 
                         />
                         <input 
                           value={editLoc} 
-                          onChange={e => setEditLoc(e.target.value)} 
+                          onChange={evento => setEditLoc(evento.target.value)} 
                           style={{ padding: '10px 14px', borderRadius: '8px', border: '1px solid #d1d5db', fontSize: '0.95rem' }} 
                           placeholder="Localização" 
                         />
@@ -308,7 +308,7 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
 
       {modalDoacoesAberto && createPortal(
         <div 
-          onClick={(e) => { if (e.target === e.currentTarget) setModalDoacoesAberto(false); }}
+          onClick={(evento) => { if (evento.target === evento.currentTarget) setModalDoacoesAberto(false); }}
           style={{
             position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
             background: 'rgba(0,0,0,0.6)', zIndex: 99999, display: 'flex', 
@@ -334,27 +334,27 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
                   {usuarioAtual?.isOng ? 'Nenhuma doação recebida ainda.' : 'Nenhuma doação feita ainda.'}
                 </p>
               ) : (
-                doacoes.map((d, idx) => (
-                  <div key={idx} style={{ padding: '16px', borderRadius: '12px', background: '#f9fafb', border: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                doacoes.map((doacao, indice) => (
+                  <div key={indice} style={{ padding: '16px', borderRadius: '12px', background: '#f9fafb', border: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: 700, color: '#111827', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {usuarioAtual?.isOng 
-                          ? (d.usuarioNome || d.usuario_nome || 'Doador Anônimo').charAt(0).toUpperCase() + (d.usuarioNome || d.usuario_nome || 'Doador Anônimo').slice(1)
+                          ? (doacao.usuarioNome || doacao.usuario_nome || 'Doador Anônimo').charAt(0).toUpperCase() + (doacao.usuarioNome || doacao.usuario_nome || 'Doador Anônimo').slice(1)
                           : (
                             <>
                               <span style={{ fontSize: '0.7rem', background: '#d16b47', color: 'white', padding: '2px 8px', borderRadius: '12px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                 ONG
                               </span>
-                              <span>{(d.instituicaoNome || d.instituicao_nome || 'ONG Anônima').charAt(0).toUpperCase() + (d.instituicaoNome || d.instituicao_nome || 'ONG Anônima').slice(1)}</span>
+                              <span>{(doacao.instituicaoNome || doacao.instituicao_nome || 'ONG Anônima').charAt(0).toUpperCase() + (doacao.instituicaoNome || doacao.instituicao_nome || 'ONG Anônima').slice(1)}</span>
                             </>
                           )}
                       </div>
                       <p style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                        {d.tipoDoacaoId === 1 || d.tipo_doacao_id === 1 ? `Valor: R$ ${parseFloat(d.quantidade).toLocaleString('pt-BR')}` : `Quantidade: ${parseFloat(d.quantidade).toLocaleString('pt-BR')} ${d.tipoDoacaoId === 2 || d.tipo_doacao_id === 2 ? 'kg' : 'un.'}`}
+                        {doacao.tipoDoacaoId === 1 || doacao.tipo_doacao_id === 1 ? `Valor: R$ ${parseFloat(doacao.quantidade).toLocaleString('pt-BR')}` : `Quantidade: ${parseFloat(doacao.quantidade).toLocaleString('pt-BR')} ${doacao.tipoDoacaoId === 2 || doacao.tipo_doacao_id === 2 ? 'kg' : 'un.'}`}
                       </p>
                     </div>
                     <span style={{ fontSize: '0.85rem', color: '#9ca3af', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Clock size={14} /> {(d.dataDoacao || d.data_doacao) ? new Date(d.dataDoacao || d.data_doacao).toLocaleDateString('pt-BR') : 'Recente'}
+                      <Clock size={14} /> {(doacao.dataDoacao || doacao.data_doacao) ? new Date(doacao.dataDoacao || doacao.data_doacao).toLocaleDateString('pt-BR') : 'Recente'}
                     </span>
                   </div>
                 ))
