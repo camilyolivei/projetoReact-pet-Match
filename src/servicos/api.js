@@ -251,7 +251,7 @@ export const apiMatches = {
     }
   },
   swipeUsuario: async (body) => {
-    // body: { usuario_id, pet_id, tipo: 'like' ou 'pass' }
+    // dados: { usuario_id, pet_id, tipo: 'like' ou 'pass' }
     try {
       const response = await api.post('/matches/swipe/usuario', body);
       return handleResponse(response);
@@ -261,7 +261,6 @@ export const apiMatches = {
   }
 };
 
-// ===== API DE RESGATES =====
 export const apiResgates = {
   listar: async () => {
     try {
@@ -281,7 +280,6 @@ export const apiResgates = {
   }
 };
 
-// ===== API DE DOAÇÕES =====
 export const apiDoacoes = {
   criar: async (body) => {
     try {

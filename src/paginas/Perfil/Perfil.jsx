@@ -10,16 +10,13 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
     email: usuarioAtual?.email || '',
     telefone: usuarioAtual?.telefone || '',
     avatar: usuarioAtual?.avatar || null,
-    // Campos de ONG
     cnpj: usuarioAtual?.cnpj || '',
     linkSite: usuarioAtual?.link_site || '',
     descricao: usuarioAtual?.descricao || '',
-    // Endereço detalhado
     rua: '', numero: '', complemento: '', bairro: '', cidade: '', estado: '', cep: ''
   });
   const [enderecoFormatado, setEnderecoFormatado] = useState(usuarioAtual?.endereco || '');
 
-  // Atualiza dados quando usuário muda
   useEffect(() => {
     if (usuarioAtual) {
       setDadosEdicao(d => ({
@@ -119,7 +116,6 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
           )}
         </div>
 
-        {/* Visualização */}
         {!editando ? (
           <>
             <h3 style={{ fontSize: '2rem', marginBottom: '8px', fontFamily: "'Poppins', sans-serif" }}>{usuarioAtual?.name}</h3>
@@ -176,7 +172,6 @@ const Perfil = ({ usuarioAtual, atualizarPerfil, excluirPerfil, exibirNotificaca
             </div>
           </>
         ) : (
-          /* Formulário de edição */
           <div style={{ textAlign: 'left' }}>
             <h4 style={{ marginBottom: '16px', fontSize: '1.1rem', fontWeight: 600, color: '#1f3024' }}>Informações Básicas</h4>
             <div className="campo-wrapper">

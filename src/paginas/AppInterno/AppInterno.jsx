@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { apiPets } from '../../servicos/api.js';
 
-//AppInterno = a tela que aparece depois do login.
 import Notificacao from '../../componentes/Notificacao/Notificacao.jsx';
 import BarraLateral from '../../componentes/BarraLateral/BarraLateral.jsx';
 import MenuMobile from '../../componentes/MenuMobile/MenuMobile.jsx';
@@ -27,7 +26,6 @@ const AppInterno = () => {
   const navegar = useNavigate();
   const { pagina } = useParams();
 
-  // estado do usuário logado
   const [usuario, setUsuarioLocal] = useState(() => {
     try {
       const salvo = localStorage.getItem('petmatch_current_user');
@@ -37,10 +35,8 @@ const AppInterno = () => {
     }
   });
 
-  // lista de pets
   const [pets, setPetsLocal] = useState([]);
 
-  // qual tela está aparecendo
   const [tela, setTelaState] = useState(pagina || 'painel');
 
   const setTela = (novaTela) => {
@@ -61,24 +57,18 @@ const AppInterno = () => {
     }
   }, [pagina]);
 
-  // controle do menu mobile
   const [menuAberto, setMenuAberto] = useState(false);
 
-  // pet que está sendo editado no formulário
   const [petEditando, setPetEditando] = useState(null);
 
-  // dados da notificação (toast)
   const [notificacao, setNotificacao] = useState({ visivel: false, mensagem: '', tipo: 'sucesso' });
 
-  // lista de adoções
   const [adocoes, setAdocoesLocal] = useState([]);
 
-  // novos estados
   const [doacoes, setDoacoes] = useState([]);
   const [resgates, setResgates] = useState([]);
   const [donationTotal, setDonationTotal] = useState(0);
 
-  // salva o usuário no estado + localStorage + avisa outras abas
   function setUsuario(novoValor) {
     setUsuarioLocal(novoValor);
     if (novoValor) {
@@ -89,32 +79,27 @@ const AppInterno = () => {
     canalAbas?.postMessage({ chave: 'petmatch_current_user', valor: novoValor });
   }
 
-  // salva os pets no estado
   function setPets(novoValor) {
     setPetsLocal(novoValor);
     canalAbas?.postMessage({ chave: 'petmatch_pets', valor: novoValor });
   }
 
-  // salva as adoções no estado
   function setAdocoes(novoValor) {
     setAdocoesLocal(novoValor);
     canalAbas?.postMessage({ chave: 'petmatch_adocoes', valor: novoValor });
   }
 
 
-  // se não tem usuário logado, manda pro login
   useEffect(() => {
     if (!usuario) {
       navegar('/login', { replace: true });
     }
   }, [usuario]);
 
-  // fecha o menu mobile quando troca de tela
   useEffect(() => {
     setMenuAberto(false);
   }, [tela]);
 
-  // busca os pets e adoções da API quando o usuário loga
   useEffect(() => {
     if (!usuario) return;
 
@@ -130,27 +115,24 @@ const AppInterno = () => {
         if (respostaUsuario.ok && Array.isArray(respostaUsuario.dados)) {
           todasAdocoes = [...respostaUsuario.dados];
         }
-        
-        // Se for ONG, busca também as adoções recebidas e doações
+
         if (usuario.isOng && usuario.instituicao_id) {
           apiAdocoes.porInstituicao(usuario.instituicao_id).then((respostaInst) => {
             if (respostaInst.ok && Array.isArray(respostaInst.dados)) {
               todasAdocoes = [...todasAdocoes, ...respostaInst.dados];
             }
-            // Remove duplicatas por ID
             const unicas = Array.from(new Map(todasAdocoes.map(item => [item.id, item])).values());
             setAdocoes(unicas);
           });
-          
+
           apiDoacoes.porInstituicao(usuario.instituicao_id).then((respostaDoacao) => {
             if (respostaDoacao.ok && Array.isArray(respostaDoacao.dados)) {
-              // Mantemos doações locais combinadas com as da API
               setDoacoes(prev => {
                 const map = new Map();
                 [...prev, ...respostaDoacao.dados].forEach(d => map.set(d.id, d));
                 return Array.from(map.values());
               });
-              
+
               setDonationTotal(prevTotal => {
                 const apiTotal = respostaDoacao.dados.reduce((acc, curr) => acc + (parseFloat(curr.quantidade) || 0), 0);
                 return apiTotal;
@@ -159,7 +141,6 @@ const AppInterno = () => {
           });
         } else {
           setAdocoes(todasAdocoes);
-          // Para usuário comum, buscar as doações feitas por ele
           apiDoacoes.porUsuario(usuario.id).then((respostaDoacao) => {
             if (respostaDoacao.ok && Array.isArray(respostaDoacao.dados)) {
               setDoacoes(prev => {
@@ -179,10 +160,7 @@ const AppInterno = () => {
       });
     };
 
-    // Busca imediatamente
     buscarDados();
-
-    // Configura um intervalo para buscar automaticamente a cada 5 segundos
     const intervalo = setInterval(buscarDados, 5000);
 
     return () => clearInterval(intervalo);
@@ -205,7 +183,7 @@ const AppInterno = () => {
       };
     } catch { }
 
-    // fallback: escuta mudanças no localStorage (navegadores antigos)
+    // alternativa para navegadores antigos: escuta mudanças no localStorage
     function quandoStorageMudar(evento) {
       if (!evento.key || !evento.newValue) return;
       try {
@@ -214,7 +192,6 @@ const AppInterno = () => {
     }
     window.addEventListener('storage', quandoStorageMudar);
 
-    // limpa tudo quando o componente desmonta
     return () => {
       canalAbas?.close();
       canalAbas = null;
@@ -223,7 +200,6 @@ const AppInterno = () => {
   }, []);
 
 
-  // mostra uma notificação por 3 segundos
   function exibirNotificacao(mensagem, tipo = 'sucesso') {
     setNotificacao({ visivel: true, mensagem, tipo });
     setTimeout(() => {
@@ -231,13 +207,11 @@ const AppInterno = () => {
     }, 3000);
   }
 
-  // faz logout
   function sair() {
     localStorage.removeItem('petmatch_token');
     setUsuario(null);
   }
 
-  // adiciona um pet novo
   async function adicionarPet(dadosPet) {
     const resposta = await apiPets.criar(dadosPet);
     const novoPet = {
@@ -248,19 +222,16 @@ const AppInterno = () => {
     setPets([novoPet, ...pets]);
   }
 
-  // atualiza um pet existente
   async function atualizarPet(id, dadosPet) {
     await apiPets.atualizar(id, dadosPet);
     setPets(pets.map((pet) => (pet.id === id ? { ...pet, ...dadosPet } : pet)));
   }
 
-  // remove um pet
   async function removerPet(id) {
     await apiPets.remover(id);
     setPets(pets.filter((pet) => pet.id !== id));
   }
 
-  // atualiza o perfil do usuário
   async function atualizarPerfil(dadosNovos) {
     // Tenta atualizar no backend
     try {
@@ -277,7 +248,7 @@ const AppInterno = () => {
           cep: dadosNovos.cep || ""
         }
       };
-      
+
       if (usuario.isOng && usuario.instituicao_id) {
         // Se for ONG, adicionamos os novos campos ao payload principal
         if (dadosNovos.cnpj !== undefined) payload.cnpj = dadosNovos.cnpj;
@@ -317,15 +288,14 @@ const AppInterno = () => {
     } catch (e) {
       console.error("Erro ao atualizar perfil na API", e);
     }
-    
+
     // Atualiza estado local mapeando corretamente os campos
     const dadosMerge = { ...dadosNovos };
-    // Converte camelCase para snake_case que o usuário espera
+    // Converte nomenclatura de camelCase para o padrão snake_case esperado pela API
     if (dadosNovos.linkSite !== undefined) dadosMerge.link_site = dadosNovos.linkSite;
     setUsuario({ ...usuario, ...dadosMerge });
   }
 
-  // excluir perfil
   async function excluirPerfil() {
     try {
       if (usuario.isOng && usuario.instituicao_id) {
@@ -340,14 +310,13 @@ const AppInterno = () => {
     navegar('/');
   }
 
-  // criar uma solicitação de adoção
   async function solicitarAdocao(petId) {
     const resposta = await apiAdocoes.criar({
       usuario_id: usuario.id,
       pet_id: petId,
       status: 'pendente'
     });
-    
+
     if (resposta.ok) {
       exibirNotificacao('Adoção solicitada com sucesso! A ONG avaliará o pedido.');
     } else {
@@ -355,7 +324,6 @@ const AppInterno = () => {
     }
   }
 
-  // Fazer doação
   async function fazerDoacao(dados) {
     const resposta = await apiDoacoes.criar(dados);
     if (resposta.ok) {
@@ -366,7 +334,6 @@ const AppInterno = () => {
     }
   }
 
-  // Reportar Resgate
   async function reportarResgate(dados) {
     const payloadCombinado = `${dados.descricao} | Local: ${dados.localizacao}`;
     const resposta = await apiResgates.reportar({ descricao: payloadCombinado, localizacao: payloadCombinado, status: 'pendente' });
@@ -390,7 +357,6 @@ const AppInterno = () => {
     }
   }
 
-  // Excluir Resgate
   async function excluirResgate(id) {
     try {
       await fetch(`https://pets-api-gt48.onrender.com/resgates/${id}/status`, {
@@ -423,19 +389,19 @@ const AppInterno = () => {
   // atualiza o status de uma adoção
   async function atualizarStatusAdocao(adocaoId, novoStatus, petId) {
     await apiAdocoes.atualizar(adocaoId, { status: novoStatus });
-    
+
     let novasAdocoes = adocoes.map((a) => (a.id === adocaoId ? { ...a, status: novoStatus } : a));
 
     // Se a adoção foi aprovada, marca o pet como indisponível e recusa as outras solicitações para este pet
     if (novoStatus === 'aprovada') {
       await atualizarPet(petId, { ativo: false });
-      
+
       // Recusar as outras adoções para o mesmo pet
       const outrasAdocoes = novasAdocoes.filter(a => a.petId === petId && a.id !== adocaoId && a.status === 'pendente');
       for (const adocao of outrasAdocoes) {
         await apiAdocoes.atualizar(adocao.id, { status: 'recusada' });
       }
-      
+
       novasAdocoes = novasAdocoes.map(a => {
         if (a.petId === petId && a.id !== adocaoId && a.status === 'pendente') {
           return { ...a, status: 'recusada' };
@@ -443,11 +409,10 @@ const AppInterno = () => {
         return a;
       });
     }
-    
+
     setAdocoes(novasAdocoes);
   }
 
-  // Renderiza a tela baseada na navegação
   const renderizarTela = () => {
     switch (tela) {
       case 'painel':
@@ -472,15 +437,14 @@ const AppInterno = () => {
   };
 
   const contextValue = {
-    activeUsers: 42, // mock since we don't have a route for total active users
     pets,
     adocoes,
     resgates,
     doacoes,
-    donationTotal
+    donationTotal,
+    usuarioAtual: usuario
   };
 
-  // se não tem usuário, não renderiza nada
   if (!usuario) return null;
 
   return (

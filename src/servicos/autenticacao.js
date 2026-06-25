@@ -35,7 +35,6 @@ export const entrar = async (email, password) => {
     const { user, token } = resLogin.dados;
     const usuario = user;
     
-    // Check if this user is an institution by email
     const resInst = await apiInstituicoes.listar();
     let instituicao_id = null;
     let isOng = false;
@@ -64,7 +63,6 @@ export const entrar = async (email, password) => {
     };
 
     salvar(CHAVE_USUARIO_ATUAL, usuarioEnriquecido);
-    // Token is saved in localStorage by api.js already, but we can ensure it here too
     if (token) {
         localStorage.setItem(CHAVE_TOKEN, token);
     }
@@ -83,7 +81,6 @@ export const cadastrar = async (dadosUsuario) => {
       rua, numero, complemento, bairro, cidade, estado, cep 
     } = dadosUsuario;
     
-    // 1. Criar o usuário normal
     const payloadUsuario = { 
       name, email, password,
       telefone,
@@ -105,7 +102,6 @@ export const cadastrar = async (dadosUsuario) => {
 
     let instituicao_id = null;
 
-    // 2. Se for ONG, precisa criar endereço e instituição na API
     if (isOng) {
       const resEnd = await apiEnderecos.criar({
         rua: rua || "Não informado",
@@ -115,7 +111,7 @@ export const cadastrar = async (dadosUsuario) => {
         cidade: cidade || "Não informado",
         estado: estado || "XX",
         cep: cep || "00000000",
-        latitude: -23.561684, // mock coordinate
+        latitude: -23.561684, // coordenada simulada
         longitude: -46.655981
       });
 
@@ -124,7 +120,7 @@ export const cadastrar = async (dadosUsuario) => {
         endId = resEnd.dados.id || resEnd.dados[0] || 1;
       }
 
-      // Cria a Instituição
+      
       const resInst = await apiInstituicoes.criar({
         nome: name,
         email: email,

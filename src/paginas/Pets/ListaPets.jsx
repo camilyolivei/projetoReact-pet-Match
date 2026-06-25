@@ -31,10 +31,8 @@ const ListaPets = ({ pets, usuarioAtual, setTela, setPetEditando, removerPet, ex
             </div>
 
             <div style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {/* Nome */}
               <h3 style={{ fontSize: '1.35rem', fontWeight: 700, color: '#111827' }}>{pet.name}</h3>
 
-              {/* Grade de informações com labels */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 <div style={{ background: '#f9fafb', borderRadius: '10px', padding: '10px 12px' }}>
                   <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '3px' }}>Espécie / Raça</p>
@@ -52,7 +50,6 @@ const ListaPets = ({ pets, usuarioAtual, setTela, setPetEditando, removerPet, ex
                 )}
               </div>
 
-              {/* Badges de saúde */}
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: '4px',
@@ -76,7 +73,6 @@ const ListaPets = ({ pets, usuarioAtual, setTela, setPetEditando, removerPet, ex
                 </span>
               </div>
 
-              {/* Botões */}
               <div style={{ display: 'flex', gap: '10px', marginTop: 'auto' }}>
                 <button
                   className="btn-outline-premium"

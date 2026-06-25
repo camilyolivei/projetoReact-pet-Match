@@ -5,7 +5,7 @@ import { AppContext } from '../../context/AppContext.jsx';
 import CabecalhoPagina from '../../componentes/CabecalhoPagina/CabecalhoPagina.jsx';
 
 const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
-  const { activeUsers, pets, adocoes, resgates, doacoes = [], donationTotal, usuarioAtual } = useContext(AppContext);
+  const { pets, adocoes, resgates, doacoes = [], donationTotal, usuarioAtual } = useContext(AppContext);
   const [modalResgateAberto, setModalResgateAberto] = useState(false);
   const [modalDoacoesAberto, setModalDoacoesAberto] = useState(false);
   const [editandoResgate, setEditandoResgate] = useState(null);
@@ -25,7 +25,7 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
     }
   };
   
-  // Estado puramente frontend para não mexer na API/Banco
+  // Estado local da interface para não mexer na API/Banco
   const [resgatesResolvidos, setResgatesResolvidos] = useState(() => {
     try {
       const salvo = localStorage.getItem('petmatch_resgates_resolvidos');
@@ -44,10 +44,9 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
   const adocoesConcluidas = adocoes.filter(a => a.status === 'aprovada').length;
   const petsDisponiveis = pets.filter(p => p.ativo).length;
   
-  // Filtra apenas os que ainda não foram resolvidos
   const resgatesAtivos = resgates.filter(r => !resgatesResolvidos.includes(r.id));
 
-  // Soma de doações por categoria (A API retorna tipoDoacaoId em camelCase, mas o payload local envia tipo_doacao_id)
+  // Soma de doações por categoria (A API retorna tipoDoacaoId com camelCase, mas o envio local utiliza tipo_doacao_id)
   const doacoesDinheiro = doacoes.filter(d => (d.tipoDoacaoId || d.tipo_doacao_id) === 1).reduce((acc, curr) => acc + (parseFloat(curr.quantidade) || 0), 0);
   const doacoesRacao = doacoes.filter(d => (d.tipoDoacaoId || d.tipo_doacao_id) === 2).reduce((acc, curr) => acc + (parseFloat(curr.quantidade) || 0), 0);
   const doacoesRemedio = doacoes.filter(d => (d.tipoDoacaoId || d.tipo_doacao_id) === 3).reduce((acc, curr) => acc + (parseFloat(curr.quantidade) || 0), 0);
@@ -77,7 +76,6 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
         ))}
       </div>
 
-      {/* Card Unificado de Doações Arrecadadas */}
       <div className="premium-card" style={{ marginBottom: '32px', padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -85,7 +83,7 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
               <Gift size={20} />
             </div>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, fontFamily: "'Poppins', sans-serif" }}>
-              {usuarioAtual?.isOng ? 'Total de Doações Arrecadadas' : 'Doações Feitas por Mim'}
+              {usuarioAtual?.isOng ? 'Doações Recebidas' : 'Doações Feitas por Mim'}
             </h3>
           </div>
           <button className="btn-texto" onClick={() => setModalDoacoesAberto(true)} style={{ color: '#d16b47', fontWeight: 600 }}>
@@ -115,7 +113,6 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
       </div>
 
       <div className="dashboard-cols">
-        {/* Últimas Adoções */}
         <div className="premium-card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
             <h3 style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: "'Poppins', sans-serif" }}>Últimas Solicitações</h3>
@@ -150,7 +147,6 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
           </div>
         </div>
 
-        {/* Resgates em foco */}
         <div className="premium-card" style={{ background: '#1f3024', color: 'white' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
             <h3 style={{ fontSize: '1.5rem', fontWeight: 700, fontFamily: "'Poppins', sans-serif" }}>
@@ -197,7 +193,6 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
         </div>
       </div>
 
-      {/* Modal de Todos os Resgates */}
       {modalResgateAberto && createPortal(
         <div 
           onClick={(e) => { if (e.target === e.currentTarget) setModalResgateAberto(false); }}
@@ -311,7 +306,6 @@ const Dashboard = ({ setView, excluirResgate, editarResgate }) => {
         </div>, document.body
       )}
 
-      {/* Modal Histórico Doações */}
       {modalDoacoesAberto && createPortal(
         <div 
           onClick={(e) => { if (e.target === e.currentTarget) setModalDoacoesAberto(false); }}

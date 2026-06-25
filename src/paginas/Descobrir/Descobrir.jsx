@@ -20,7 +20,7 @@ const Descobrir = ({ pets, adocoes = [], usuarioAtual, exibirNotificacao, setTel
         if (res.ok && Array.isArray(res.dados)) {
           setPetsDisponiveis(res.dados);
         } else {
-          // Fallback
+          // Caso a API falhe
           const filtrados = pets.filter(pet => {
             const naoEhMeu = pet.owner_id !== usuarioAtual?.instituicao_id && pet.owner_id !== usuarioAtual?.id;
             return naoEhMeu && pet.ativo;
@@ -34,7 +34,7 @@ const Descobrir = ({ pets, adocoes = [], usuarioAtual, exibirNotificacao, setTel
       }
     };
     buscarPetsDiscover();
-  }, [usuarioAtual?.id]); // Removido pets e adocoes para evitar flickering durante o polling de 5 segundos
+  }, [usuarioAtual?.id]); // Removido pets e adocoes para evitar oscilações visuais durante a busca periódica de 5 segundos
 
   const petAtual = petsDisponiveis[0];
 
@@ -47,10 +47,10 @@ const Descobrir = ({ pets, adocoes = [], usuarioAtual, exibirNotificacao, setTel
       setPetMatch(petAtual);
       exibirNotificacao('Você curtiu o pet!');
       
-      // Remove da lista em background para o próximo aparecer atrás do popup
+      // Remove da lista em segundo plano para o próximo aparecer atrás da janela de match
       avancarPet();
 
-      // Envia o swipe para a API
+      // Envia a ação de curtir/passar para a API
       await apiMatches.swipeUsuario({
         usuario_id: usuarioAtual.id,
         pet_id: petAtual.id,
