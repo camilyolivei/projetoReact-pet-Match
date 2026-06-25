@@ -4,6 +4,17 @@
 
 <h1 align="center">PetMatch - Encontre seu Novo Melhor Amigo</h1>
 
+<p align="center">
+  <strong>Link do projeto online:</strong> <a href="https://camilyolivei.github.io/login" target="_blank">camilyolivei.github.io/login</a>
+</p>
+
+
+<p align="center">
+  <img src="src/assets/img/mockup.jpg" alt="PetMatch Desktop Preview" width="800" style="border-radius: 16px; box-shadow: 0 12px 36px rgba(0,0,0,0.15);" />
+</p>
+
+
+
 O **PetMatch** é uma plataforma moderna e interativa desenvolvida em React + Vite para conectar protetores de animais (ONGs) a adotantes em potencial (tutores). Inspirado na mecânica de deslizamento de cartões (Tinder), o sistema facilita a adoção responsável de animais de estimação, o reporte de resgates de animais em situação de risco e o controle financeiro de doações.
 
 ---
